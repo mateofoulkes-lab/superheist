@@ -10,12 +10,12 @@
   --panel:#151a2c; --line:#303752; --accent:#7787ff; --ok:#53d79a; --bad:#ff6b7a;
 }
 *{box-sizing:border-box}body{margin:0;background:#0b0e19}
-button{font:inherit;border:0;border-radius:10px;padding:10px 12px;font-weight:750;cursor:pointer;background:#29304c;color:#fff}
-button:hover{filter:brightness(1.12)}button.primary{background:#6275ff}.danger{background:#612b36}
+button,select{font:inherit;border:0;border-radius:10px;padding:10px 12px;font-weight:750;background:#29304c;color:#fff}
+button{cursor:pointer}button:hover{filter:brightness(1.12)}button.primary{background:#6275ff}.danger{background:#612b36}
 header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;background:#101426;position:sticky;top:0;z-index:4}
-header a{color:#aeb7ff;text-decoration:none}h1{font-size:1.15rem;margin:0}.wrap{display:grid;grid-template-columns:310px 1fr;min-height:calc(100vh - 65px)}
+header a{color:#aeb7ff;text-decoration:none}h1{font-size:1.15rem;margin:0}.wrap{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 65px)}
 aside{padding:18px;border-right:1px solid var(--line);background:#101426}.group{background:var(--panel);border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:14px}
-.group h2{font-size:.95rem;margin:0 0 10px}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
+.group h2{font-size:.95rem;margin:0 0 10px}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
 .selected{min-height:158px;display:grid;place-items:center;border:1px dashed #4c567d;border-radius:12px;background:#0c1020;margin:10px 0}
 .selected .tile-svg{width:140px;height:140px}.hint{font-size:.82rem;color:#9ea6c0;line-height:1.35}.counter{display:flex;justify-content:space-between;color:#c8cee4;font-size:.85rem;margin-top:8px}
 .palette{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-height:245px;overflow:auto}.palette button{padding:4px;background:#0e1324;border:1px solid #2c3557}.palette svg{width:100%;display:block}
@@ -24,11 +24,16 @@ main{overflow:auto;padding:22px}.workspace{min-width:820px}.board{
   background:#080b14;border:2px solid #343b58;box-shadow:0 20px 60px #0008;
 }
 .cell{position:relative;border:1px solid #151b2c}.cell:hover{background:#17213a}.cell.good{background:#153a2d}.cell.bad{background:#4a1d27}.cell svg{width:100%;height:100%;display:block}
+.patrol-marker{position:absolute;z-index:3;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:950;color:#0b0e19;border:2px solid #fff;box-shadow:0 1px 4px #000a}
+.patrol-marker.guard{width:27px;height:27px;font-size:12px;right:5px;bottom:5px}
+.patrol-marker.node{right:6px;top:6px}
+.patrol-marker.node:nth-of-type(3){right:30px}
 .message{width:810px;margin:12px auto 0;padding:10px 12px;border-radius:10px;background:#12172a;color:#b7bfd8;min-height:42px}
 .message.ok{border-left:4px solid var(--ok)}.message.bad{border-left:4px solid var(--bad)}
 .legend{width:min(930px,100%);margin:28px auto;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
 .legend h2{margin-top:0}.legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .legend-item{display:flex;gap:10px;align-items:center;color:#c4cade}.ico{width:34px;height:34px;border-radius:9px;background:#222943;display:grid;place-items:center;font-weight:900}
+.patrol-list{display:grid;gap:7px;margin-top:10px}.patrol-card{display:flex;gap:9px;align-items:center;padding:8px 9px;border-radius:9px;background:#0e1324;color:#c8cee4;font-size:.78rem}.swatch{width:16px;height:16px;border-radius:50%;border:2px solid #fff;flex:none}
 kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-radius:6px;padding:1px 6px}
 @media(max-width:900px){.wrap{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line)}main{padding:12px}}
 </style>
@@ -37,10 +42,25 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
 <header>
   <a href="../../">← Toolbox</a>
   <h1>SuperHeist · Constructor de Banco</h1>
-  <span style="color:#8d96b6">v0.1</span>
+  <span style="color:#8d96b6">v0.2</span>
 </header>
 <div class="wrap">
 <aside>
+  <div class="group">
+    <h2>Generación automática</h2>
+    <div class="row">
+      <select id="bankSize" aria-label="Tamaño del banco">
+        <option value="12">Pequeño · 12</option>
+        <option value="15" selected>Mediano · 15</option>
+        <option value="19">Grande · 19</option>
+      </select>
+      <button class="primary" onclick="autoGenerateBank()">Generar banco</button>
+    </div>
+    <button style="width:100%;margin-top:8px" onclick="generatePatrols()">↻ Regenerar patrullas</button>
+    <p class="hint">Genera primero la arquitectura y después crea una ronda de 3 habitaciones para cada puesto de guardia, evitando cruces siempre que puede.</p>
+    <div id="patrolList" class="patrol-list"></div>
+  </div>
+
   <div class="group">
     <h2>Robar loseta</h2>
     <div class="row">
@@ -59,7 +79,7 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
   <div class="group">
     <h2>Losetas pregeneradas</h2>
     <div id="palette" class="palette"></div>
-    <p class="hint">En el prototipo podés elegirlas directamente. Más adelante este panel puede convertirse en mazos físicos.</p>
+    <p class="hint">Las losetas ya no contienen nodos A/B. Sólo algunos ambientes traen un <b>puesto de guardia G</b>; la ronda se crea cuando el banco ya existe.</p>
   </div>
 
   <div class="group">
@@ -68,21 +88,21 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
       <button onclick="undo()">Deshacer</button>
       <button class="danger" onclick="resetBoard()">Reiniciar</button>
     </div>
-    <p class="hint">Regla actual: una loseta nueva debe conectar con al menos una puerta existente y todos los bordes vecinos tienen que coincidir: <b>puerta con puerta, pared con pared</b>.</p>
+    <p class="hint">Una loseta nueva debe conectar por puerta con el banco y todos los bordes vecinos deben coincidir: <b>puerta con puerta, pared con pared</b>. Al editar el banco se borran las patrullas para volver a calcularlas.</p>
   </div>
 </aside>
 
 <main>
   <div class="workspace">
     <div id="board" class="board"></div>
-    <div id="message" class="message">La recepción es la loseta inicial obligatoria. Construí desde ahí.</div>
+    <div id="message" class="message">La recepción es la loseta inicial obligatoria. Construí desde ahí o generá un banco completo.</div>
 
     <section class="legend">
       <h2>Referencias de iconos</h2>
       <div class="legend-grid">
         <div class="legend-item"><div class="ico">◉</div><div><b>Cámara</b><br><small>Vigilancia fija de la sala.</small></div></div>
-        <div class="legend-item"><div class="ico">G</div><div><b>Puesto de guardia</b><br><small>Posición inicial o estación.</small></div></div>
-        <div class="legend-item"><div class="ico">A</div><div><b>Nodo de patrulla</b><br><small>Parte de una ronda de guardia.</small></div></div>
+        <div class="legend-item"><div class="ico">G</div><div><b>Puesto de guardia</b><br><small>La mini del guardia empieza acá.</small></div></div>
+        <div class="legend-item"><div class="ico">●</div><div><b>Ficha de ronda</b><br><small>Dos fichas del mismo color + la mini forman una patrulla de 3 salas.</small></div></div>
         <div class="legend-item"><div class="ico">▦</div><div><b>Ventilación</b><br><small>Conecta con otros ductos de la misma red.</small></div></div>
         <div class="legend-item"><div class="ico">?</div><div><b>Slot de evento</b><br><small>Recibe carta chica: trampa, botín, cámara oculta, etc.</small></div></div>
         <div class="legend-item"><div class="ico">◆</div><div><b>Botín / objetivo</b><br><small>Punto importante del golpe.</small></div></div>
@@ -94,37 +114,43 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
 
 <script>
 const S=["N","E","S","W"], O={N:"S",E:"W",S:"N",W:"E"}, D={N:[-1,0],E:[0,1],S:[1,0],W:[0,-1]};
+const COLORS=["#ff667d","#5dc9ff","#ffd166","#75e58b","#b990ff","#ff9b54","#58e1c1","#f37ad3"];
+
 const TILES=[
  {id:"reception",name:"Recepción",deck:"special",exits:["N","E","S","W"],color:"#4967d9",icons:[["camera",78,23],["guard",25,72]]},
- {id:"corridor-i",name:"Pasillo",deck:"bank",exits:["N","S"],color:"#39435b",icons:[["patrol",50,28,"A"]]},
- {id:"corridor-l",name:"Pasillo L",deck:"bank",exits:["N","E"],color:"#39435b",icons:[["patrol",62,35,"A"]]},
- {id:"corridor-t",name:"Cruce T",deck:"bank",exits:["N","E","W"],color:"#39435b",icons:[["patrol",50,50,"A"]]},
+
+ {id:"corridor-i",name:"Pasillo",deck:"bank",exits:["N","S"],color:"#39435b",icons:[]},
+ {id:"corridor-l",name:"Pasillo L",deck:"bank",exits:["N","E"],color:"#39435b",icons:[]},
+ {id:"corridor-t",name:"Cruce T",deck:"bank",exits:["N","E","W"],color:"#39435b",icons:[]},
  {id:"office",name:"Oficina",deck:"bank",exits:["S"],color:"#526272",icons:[["event",72,30]]},
- {id:"manager",name:"Gerencia",deck:"bank",exits:["W","S"],color:"#6a5876",icons:[["vent",27,28,"A"],["event",72,70]]},
  {id:"archive",name:"Archivo",deck:"bank",exits:["E"],color:"#735d46",icons:[["vent",28,28,"A"],["event",70,36],["event",70,69]]},
- {id:"security",name:"Seguridad",deck:"bank",exits:["N","E","S"],color:"#485777",icons:[["camera",72,25],["guard",28,68],["patrol",66,70,"B"]]},
+ {id:"manager",name:"Gerencia",deck:"bank",exits:["W","S"],color:"#6a5876",icons:[["vent",27,28,"A"],["event",72,70]]},
+ {id:"security",name:"Seguridad",deck:"bank",exits:["N","E","S"],color:"#485777",icons:[["camera",72,25],["guard",28,68]]},
  {id:"staff",name:"Personal",deck:"bank",exits:["N","W"],color:"#4f6b5c",icons:[["vent",72,72,"B"],["guard",28,28]]},
- {id:"tellers",name:"Cajas",deck:"bank",exits:["E","W"],color:"#5b6d51",icons:[["camera",50,25],["patrol",50,72,"A"]]},
- {id:"secure-hall",name:"Acceso seguro",deck:"vault",exits:["N","S"],color:"#68523f",icons:[["camera",73,27],["patrol",27,70,"B"]]},
+ {id:"tellers",name:"Cajas",deck:"bank",exits:["E","W"],color:"#5b6d51",icons:[["camera",50,25]]},
+
+ {id:"secure-hall",name:"Acceso seguro",deck:"vault",exits:["N","S"],color:"#68523f",icons:[["camera",73,27]]},
  {id:"antechamber",name:"Antecámara",deck:"vault",exits:["N","E"],color:"#725044",icons:[["guard",30,30],["event",70,70]]},
  {id:"deposit-boxes",name:"Cajas seg.",deck:"vault",exits:["E","W"],color:"#806a45",icons:[["event",30,70],["event",70,70],["vent",50,27,"B"]]},
  {id:"vault",name:"BÓVEDA",deck:"vault",exits:["S"],color:"#8b6632",icons:[["loot",50,52],["camera",75,25],["event",25,72]]}
 ];
 
-let selected=null, rotation=0, history=[];
+let selected=null, rotation=0, history=[], patrols=[];
 const placed=new Map(), board=document.querySelector("#board"), msg=document.querySelector("#message");
 
 function key(r,c){return r+","+c}
+function parseKey(k){return k.split(",").map(Number)}
 function rotSide(side,n){return S[(S.indexOf(side)+n)%4]}
 function rotatedExits(t,rot){const n=(rot/90)%4;return t.exits.map(x=>rotSide(x,n))}
 function rotXY(x,y,n){for(let i=0;i<n;i++){[x,y]=[100-y,x]}return [x,y]}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+function sameSet(a,b){return a.length===b.length && a.every(x=>b.includes(x))}
+function shuffle(a){const out=[...a];for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out}
 
 function iconSvg(item,rot){
  const [type,bx,by,label]=item,n=(rot/90)%4,[x,y]=rotXY(bx,by,n);
  if(type==="camera") return `<g transform="translate(${x} ${y})"><circle r="6" fill="#dce8ff"/><path d="M7 -4 L17 -10 L17 10 L7 4Z" fill="#9db7ff"/></g>`;
  if(type==="guard") return `<g><circle cx="${x}" cy="${y}" r="9" fill="#1c2437" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">G</text></g>`;
- if(type==="patrol") return `<g><circle cx="${x}" cy="${y}" r="8" fill="#182a3e" stroke="#66d4ff" stroke-width="2"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="900" fill="#8ee4ff">${label||"A"}</text></g>`;
  if(type==="vent") return `<g transform="translate(${x-8} ${y-8})"><rect width="16" height="16" rx="2" fill="#26303c" stroke="#d6e1eb"/><path d="M4 1V15M8 1V15M12 1V15M1 4H15M1 8H15M1 12H15" stroke="#8fa0ad" stroke-width="1"/></g>`;
  if(type==="event") return `<g><rect x="${x-8}" y="${y-8}" width="16" height="16" rx="3" fill="#532f67" stroke="#f0a8ff"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">?</text></g>`;
  if(type==="loot") return `<text x="${x}" y="${y+7}" text-anchor="middle" font-size="23" fill="#ffd96a">◆</text>`;
@@ -159,12 +185,35 @@ function buildBoard(){
  }
  renderBoard();
 }
+function addPatrolMarkers(cell,k){
+ let offset=0;
+ for(const p of patrols){
+   if(p.post===k){
+     const m=document.createElement("div");m.className="patrol-marker guard";m.style.background=p.color;m.textContent="G";m.title=`Guardia ${p.id} · puesto`;cell.append(m);
+   } else if(p.nodes.includes(k)){
+     const m=document.createElement("div");m.className="patrol-marker node";m.style.background=p.color;m.style.right=(6+offset*22)+"px";m.textContent="";m.title=`Guardia ${p.id} · nodo de ronda`;cell.append(m);offset++;
+   }
+ }
+}
 function renderBoard(){
  document.querySelectorAll(".cell").forEach(c=>c.innerHTML="");
- for(const [k,p] of placed){const [r,c]=k.split(",").map(Number);board.children[r*9+c].innerHTML=tileSvg(p.tile,p.rot)}
+ for(const [k,p] of placed){
+   const [r,c]=parseKey(k), cell=board.children[r*9+c];
+   cell.innerHTML=tileSvg(p.tile,p.rot); addPatrolMarkers(cell,k);
+ }
  let bank=0,vault=0; for(const p of placed.values()){if(p.tile.deck==="vault")vault++;else bank++}
  document.querySelector("#bankCount").textContent=bank;document.querySelector("#vaultCount").textContent=vault;
+ renderPatrolList();
 }
+function renderPatrolList(){
+ const box=document.querySelector("#patrolList");
+ if(!patrols.length){box.innerHTML='<span class="hint">Todavía no hay patrullas generadas.</span>';return}
+ box.innerHTML=patrols.map(p=>{
+   const names=[p.post,...p.nodes].map(k=>placed.get(k)?.tile.name||k);
+   return `<div class="patrol-card"><span class="swatch" style="background:${p.color}"></span><span><b>Guardia ${p.id}</b><br>${names.join(" → ")}</span></div>`
+ }).join("");
+}
+
 function validate(t,rot,r,c){
  if(placed.has(key(r,c)))return [false,"Esa casilla ya está ocupada."];
  const exits=rotatedExits(t,rot); let connected=false,neighbors=0;
@@ -180,27 +229,176 @@ function validate(t,rot,r,c){
  if(!connected)return [false,"Toca el banco, pero no hay ninguna puerta que conecte ambas losetas."];
  return [true,"Encastre válido."];
 }
+function clearPatrols(){patrols=[]}
 function placeAt(r,c){
  if(!selected){say("Primero elegí o robá una loseta.",false);return}
  const [ok,why]=validate(selected,rotation,r,c); if(!ok){say(why,false);return}
- placed.set(key(r,c),{tile:selected,rot:rotation});history.push(key(r,c));renderBoard();say(selected.name+" colocada.",true);
+ placed.set(key(r,c),{tile:selected,rot:rotation});history.push(key(r,c));clearPatrols();renderBoard();say(selected.name+" colocada. Regenerá las patrullas.",true);
  selected=null;rotation=0;renderSelected();
 }
 function previewCell(el,r,c){if(!selected||placed.has(key(r,c)))return;const [ok]=validate(selected,rotation,r,c);el.classList.add(ok?"good":"bad")}
 function chooseTile(id){selected=TILES.find(t=>t.id===id);rotation=0;renderSelected();say("Loseta seleccionada: "+selected.name+".",true)}
 function drawTile(deck){const a=TILES.filter(t=>t.deck===deck);chooseTile(a[Math.floor(Math.random()*a.length)].id)}
-function rotateSelected(){if(!selected)return;srotation=(rotation+90)%360;rotation=srotation;renderSelected()}
+function rotateSelected(){if(!selected)return;rotation=(rotation+90)%360;renderSelected()}
 function cancelSelected(){selected=null;rotation=0;renderSelected()}
 function renderSelected(){document.querySelector("#selected").innerHTML=selected?tileSvg(selected,rotation):'<span class="hint">Elegí una loseta</span>'}
-function undo(){const k=history.pop();if(!k)return;say("Última loseta retirada.",true);placed.delete(k);renderBoard()}
-function resetBoard(){placed.clear();history=[];placed.set(key(4,4),{tile:TILES[0],rot:0});selected=null;rotation=0;renderSelected();renderBoard();say("Banco reiniciado. La recepción vuelve al centro.",true)}
+function undo(){const k=history.pop();if(!k)return;say("Última loseta retirada. Regenerá las patrullas.",true);placed.delete(k);clearPatrols();renderBoard()}
+function resetBoard(){placed.clear();history=[];patrols=[];placed.set(key(4,4),{tile:TILES[0],rot:0});selected=null;rotation=0;renderSelected();renderBoard();say("Banco reiniciado. La recepción vuelve al centro.",true)}
 function say(t,ok){msg.textContent=t;msg.className="message "+(ok?"ok":"bad")}
+
+function cellDegree(k,cells){
+ const [r,c]=parseKey(k);let n=0;
+ for(const side of S){const [dr,dc]=D[side];if(cells.has(key(r+dr,c+dc)))n++}
+ return n;
+}
+function requiredExits(k,cells){
+ const [r,c]=parseKey(k), out=[];
+ for(const side of S){const [dr,dc]=D[side];if(cells.has(key(r+dr,c+dc)))out.push(side)}
+ return out;
+}
+function randomLayout(target){
+ const cells=new Set([key(4,4),key(3,4),key(4,5),key(5,4)]);
+ const reserved=key(4,3); // puerta exterior de Recepción
+ let guard=0;
+ while(cells.size<target && guard++<2000){
+   const options=[];
+   for(const k of cells){
+     const [r,c]=parseKey(k);
+     for(const side of shuffle(S)){
+       const [dr,dc]=D[side],nr=r+dr,nc=c+dc,nk=key(nr,nc);
+       if(nr<1||nr>7||nc<1||nc>7||nk===reserved||cells.has(nk))continue;
+       const touching=[];
+       for(const s2 of S){const [ar,ac]=D[s2],ak=key(nr+ar,nc+ac);if(cells.has(ak))touching.push(ak)}
+       if(!touching.length||touching.length>3)continue;
+       if(touching.some(x=>cellDegree(x,cells)>=3 && x!==key(4,4)))continue;
+       if(touching.includes(key(4,4)) && cellDegree(key(4,4),cells)>=3)continue;
+       options.push(nk);
+     }
+   }
+   if(!options.length)break;
+   cells.add(options[Math.floor(Math.random()*options.length)]);
+ }
+ return cells.size===target?cells:null;
+}
+function graphDistances(cells,start){
+ const dist=new Map([[start,0]]),parent=new Map(),q=[start];
+ while(q.length){
+   const k=q.shift(),[r,c]=parseKey(k);
+   for(const side of S){const [dr,dc]=D[side],nk=key(r+dr,c+dc);if(cells.has(nk)&&!dist.has(nk)){dist.set(nk,dist.get(k)+1);parent.set(nk,k);q.push(nk)}}
+ }
+ return {dist,parent};
+}
+function chooseVaultCells(cells,count){
+ const start=key(4,4),{dist,parent}=graphDistances(cells,start);
+ const leaves=[...cells].filter(k=>k!==start&&cellDegree(k,cells)===1).sort((a,b)=>(dist.get(b)||0)-(dist.get(a)||0));
+ for(const leaf of leaves){
+   const path=[];let cur=leaf;
+   while(cur&&cur!==start){path.push(cur);cur=parent.get(cur)}
+   const tail=path.slice(0,count);
+   if(tail.length===count && tail.every(k=>cellDegree(k,cells)<=2))return new Set(tail);
+ }
+ return null;
+}
+function fittingTile(required,deck,forceVault=false){
+ const pool=TILES.filter(t=>t.deck===deck && (!forceVault || t.id==="vault"));
+ const choices=[];
+ for(const t of pool)for(const rot of [0,90,180,270])if(sameSet(rotatedExits(t,rot),required))choices.push({tile:t,rot});
+ return choices.length?choices[Math.floor(Math.random()*choices.length)]:null;
+}
+function assignLayout(cells,vaultCells){
+ const out=new Map(),receptionKey=key(4,4);
+ out.set(receptionKey,{tile:TILES[0],rot:0});
+ const {dist}=graphDistances(cells,receptionKey);
+ let vaultLeaf=[...vaultCells].sort((a,b)=>(dist.get(b)||0)-(dist.get(a)||0))[0];
+
+ for(const k of cells){
+   if(k===receptionKey)continue;
+   const req=requiredExits(k,cells);
+   let fit;
+   if(vaultCells.has(k)){
+     fit=fittingTile(req,"vault",k===vaultLeaf);
+     if(!fit)fit=fittingTile(req,"vault",false);
+   }else{
+     fit=fittingTile(req,"bank",false);
+   }
+   if(!fit)return null;
+   out.set(k,fit);
+ }
+ return out;
+}
+function autoGenerateBank(){
+ const target=Number(document.querySelector("#bankSize").value)||15;
+ const vaultCount=target<=12?2:3;
+ let generated=null;
+ for(let attempt=0;attempt<250&&!generated;attempt++){
+   const cells=randomLayout(target);if(!cells)continue;
+   const vaultCells=chooseVaultCells(cells,vaultCount);if(!vaultCells)continue;
+   const assigned=assignLayout(cells,vaultCells);if(assigned)generated=assigned;
+ }
+ if(!generated){say("No pude generar un banco válido. Probá de nuevo.",false);return}
+ placed.clear();history=[];patrols=[];
+ for(const [k,v] of generated)placed.set(k,v);
+ renderBoard();
+ generatePatrols(false);
+ say(`Banco automático generado: ${placed.size} losetas y ${patrols.length} patrullas.`,true);
+}
+
+function connectedNeighbors(k){
+ const p=placed.get(k);if(!p)return[];
+ const [r,c]=parseKey(k),exits=rotatedExits(p.tile,p.rot),out=[];
+ for(const side of exits){
+   const [dr,dc]=D[side],nk=key(r+dr,c+dc),n=placed.get(nk);if(!n)continue;
+   if(rotatedExits(n.tile,n.rot).includes(O[side]))out.push(nk);
+ }
+ return out;
+}
+function guardPosts(){
+ return [...placed.entries()].filter(([,p])=>p.tile.icons.some(i=>i[0]==="guard")).map(([k])=>k);
+}
+function routeCandidates(post){
+ const direct=connectedNeighbors(post),seen=new Set(),routes=[];
+ for(let i=0;i<direct.length;i++)for(let j=i+1;j<direct.length;j++){
+   const cells=[post,direct[i],direct[j]],sig=[...cells].sort().join("|");
+   if(!seen.has(sig)){seen.add(sig);routes.push({post,nodes:[direct[i],direct[j]],kind:"hub"})}
+ }
+ for(const first of direct)for(const second of connectedNeighbors(first)){
+   if(second===post)continue;
+   const cells=[post,first,second],sig=[...cells].sort().join("|");
+   if(!seen.has(sig)){seen.add(sig);routes.push({post,nodes:[first,second],kind:"chain"})}
+ }
+ return routes;
+}
+function generatePatrols(announce=true){
+ patrols=[];
+ const posts=guardPosts();
+ const infos=posts.map(post=>({post,candidates:routeCandidates(post)})).sort((a,b)=>a.candidates.length-b.candidates.length);
+ const used=new Set();let colorIndex=0,failed=0;
+ for(const info of infos){
+   if(!info.candidates.length){failed++;continue}
+   let bestScore=Infinity,best=[];
+   for(const route of info.candidates){
+     const overlap=route.nodes.reduce((n,k)=>n+(used.has(k)?1:0),0)+(used.has(route.post)?2:0);
+     const score=overlap*100+(route.kind==="chain"?1:0)+Math.random();
+     if(score<bestScore){bestScore=score;best=[route]}else if(Math.abs(score-bestScore)<.001)best.push(route)
+   }
+   const route=best[Math.floor(Math.random()*best.length)]||info.candidates[0];
+   const color=COLORS[colorIndex++%COLORS.length];
+   const id=colorIndex;
+   patrols.push({...route,color,id});
+   used.add(route.post);route.nodes.forEach(k=>used.add(k));
+ }
+ renderBoard();
+ if(announce){
+   if(failed)say(`Se generaron ${patrols.length} patrullas. ${failed} puesto(s) no tenían 3 habitaciones conectadas.`,false);
+   else say(`Se generaron ${patrols.length} patrullas de 3 habitaciones, evitando cruces cuando fue posible.`,true);
+ }
+}
+
 function buildPalette(){
  const p=document.querySelector("#palette");
  TILES.filter(t=>t.deck!=="special").forEach(t=>{const b=document.createElement("button");b.title=t.name;b.innerHTML=tileSvg(t,0);b.onclick=()=>chooseTile(t.id);p.append(b)})
 }
 document.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="r")rotateSelected()});
-let srotation=0;
 buildPalette();buildBoard();resetBoard();
 </script>
 </body>
