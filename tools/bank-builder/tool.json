@@ -1,6 +1,6 @@
 {
   "title": "Constructor de Banco",
-  "status": "v0.1",
-  "description": "Prototipo interactivo para armar el banco modular con losetas pregeneradas, rotarlas y validar encastres puerta/pared.",
+  "status": "v0.2",
+  "description": "Genera bancos modulares automáticamente o a mano y crea patrullas de guardias de 3 habitaciones sin nodos A/B fijos.",
   "order": 1
 }
