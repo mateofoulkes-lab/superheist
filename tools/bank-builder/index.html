@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SuperHeist · Constructor de Banco</title>
+<style>
+:root{
+  font-family:Inter,system-ui,sans-serif; color:#edf1ff; background:#0b0e19;
+  --panel:#151a2c; --line:#303752; --accent:#7787ff; --ok:#53d79a; --bad:#ff6b7a;
+}
+*{box-sizing:border-box}body{margin:0;background:#0b0e19}
+button{font:inherit;border:0;border-radius:10px;padding:10px 12px;font-weight:750;cursor:pointer;background:#29304c;color:#fff}
+button:hover{filter:brightness(1.12)}button.primary{background:#6275ff}.danger{background:#612b36}
+header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;background:#101426;position:sticky;top:0;z-index:4}
+header a{color:#aeb7ff;text-decoration:none}h1{font-size:1.15rem;margin:0}.wrap{display:grid;grid-template-columns:310px 1fr;min-height:calc(100vh - 65px)}
+aside{padding:18px;border-right:1px solid var(--line);background:#101426}.group{background:var(--panel);border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:14px}
+.group h2{font-size:.95rem;margin:0 0 10px}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
+.selected{min-height:158px;display:grid;place-items:center;border:1px dashed #4c567d;border-radius:12px;background:#0c1020;margin:10px 0}
+.selected .tile-svg{width:140px;height:140px}.hint{font-size:.82rem;color:#9ea6c0;line-height:1.35}.counter{display:flex;justify-content:space-between;color:#c8cee4;font-size:.85rem;margin-top:8px}
+.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-height:245px;overflow:auto}.palette button{padding:4px;background:#0e1324;border:1px solid #2c3557}.palette svg{width:100%;display:block}
+main{overflow:auto;padding:22px}.workspace{min-width:820px}.board{
+  width:810px;height:810px;margin:auto;display:grid;grid-template-columns:repeat(9,90px);grid-template-rows:repeat(9,90px);
+  background:#080b14;border:2px solid #343b58;box-shadow:0 20px 60px #0008;
+}
+.cell{position:relative;border:1px solid #151b2c}.cell:hover{background:#17213a}.cell.good{background:#153a2d}.cell.bad{background:#4a1d27}.cell svg{width:100%;height:100%;display:block}
+.message{width:810px;margin:12px auto 0;padding:10px 12px;border-radius:10px;background:#12172a;color:#b7bfd8;min-height:42px}
+.message.ok{border-left:4px solid var(--ok)}.message.bad{border-left:4px solid var(--bad)}
+.legend{width:min(930px,100%);margin:28px auto;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.legend h2{margin-top:0}.legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.legend-item{display:flex;gap:10px;align-items:center;color:#c4cade}.ico{width:34px;height:34px;border-radius:9px;background:#222943;display:grid;place-items:center;font-weight:900}
+kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-radius:6px;padding:1px 6px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line)}main{padding:12px}}
+</style>
+</head>
+<body>
+<header>
+  <a href="../../">← Toolbox</a>
+  <h1>SuperHeist · Constructor de Banco</h1>
+  <span style="color:#8d96b6">v0.1</span>
+</header>
+<div class="wrap">
+<aside>
+  <div class="group">
+    <h2>Robar loseta</h2>
+    <div class="row">
+      <button class="primary" onclick="drawTile('bank')">Banco</button>
+      <button onclick="drawTile('vault')">Bóveda</button>
+    </div>
+    <div id="selected" class="selected"><span class="hint">Elegí una loseta</span></div>
+    <div class="row">
+      <button onclick="rotateSelected()">↻ Girar 90°</button>
+      <button onclick="cancelSelected()">Cancelar</button>
+    </div>
+    <p class="hint">También podés girar con <kbd>R</kbd>. Elegí la loseta y hacé clic en una casilla libre.</p>
+    <div class="counter"><span>Banco: <b id="bankCount">1</b></span><span>Bóveda: <b id="vaultCount">0</b></span></div>
+  </div>
+
+  <div class="group">
+    <h2>Losetas pregeneradas</h2>
+    <div id="palette" class="palette"></div>
+    <p class="hint">En el prototipo podés elegirlas directamente. Más adelante este panel puede convertirse en mazos físicos.</p>
+  </div>
+
+  <div class="group">
+    <h2>Mesa</h2>
+    <div class="row">
+      <button onclick="undo()">Deshacer</button>
+      <button class="danger" onclick="resetBoard()">Reiniciar</button>
+    </div>
+    <p class="hint">Regla actual: una loseta nueva debe conectar con al menos una puerta existente y todos los bordes vecinos tienen que coincidir: <b>puerta con puerta, pared con pared</b>.</p>
+  </div>
+</aside>
+
+<main>
+  <div class="workspace">
+    <div id="board" class="board"></div>
+    <div id="message" class="message">La recepción es la loseta inicial obligatoria. Construí desde ahí.</div>
+
+    <section class="legend">
+      <h2>Referencias de iconos</h2>
+      <div class="legend-grid">
+        <div class="legend-item"><div class="ico">◉</div><div><b>Cámara</b><br><small>Vigilancia fija de la sala.</small></div></div>
+        <div class="legend-item"><div class="ico">G</div><div><b>Puesto de guardia</b><br><small>Posición inicial o estación.</small></div></div>
+        <div class="legend-item"><div class="ico">A</div><div><b>Nodo de patrulla</b><br><small>Parte de una ronda de guardia.</small></div></div>
+        <div class="legend-item"><div class="ico">▦</div><div><b>Ventilación</b><br><small>Conecta con otros ductos de la misma red.</small></div></div>
+        <div class="legend-item"><div class="ico">?</div><div><b>Slot de evento</b><br><small>Recibe carta chica: trampa, botín, cámara oculta, etc.</small></div></div>
+        <div class="legend-item"><div class="ico">◆</div><div><b>Botín / objetivo</b><br><small>Punto importante del golpe.</small></div></div>
+      </div>
+    </section>
+  </div>
+</main>
+</div>
+
+<script>
+const S=["N","E","S","W"], O={N:"S",E:"W",S:"N",W:"E"}, D={N:[-1,0],E:[0,1],S:[1,0],W:[0,-1]};
+const TILES=[
+ {id:"reception",name:"Recepción",deck:"special",exits:["N","E","S","W"],color:"#4967d9",icons:[["camera",78,23],["guard",25,72]]},
+ {id:"corridor-i",name:"Pasillo",deck:"bank",exits:["N","S"],color:"#39435b",icons:[["patrol",50,28,"A"]]},
+ {id:"corridor-l",name:"Pasillo L",deck:"bank",exits:["N","E"],color:"#39435b",icons:[["patrol",62,35,"A"]]},
+ {id:"corridor-t",name:"Cruce T",deck:"bank",exits:["N","E","W"],color:"#39435b",icons:[["patrol",50,50,"A"]]},
+ {id:"office",name:"Oficina",deck:"bank",exits:["S"],color:"#526272",icons:[["event",72,30]]},
+ {id:"manager",name:"Gerencia",deck:"bank",exits:["W","S"],color:"#6a5876",icons:[["vent",27,28,"A"],["event",72,70]]},
+ {id:"archive",name:"Archivo",deck:"bank",exits:["E"],color:"#735d46",icons:[["vent",28,28,"A"],["event",70,36],["event",70,69]]},
+ {id:"security",name:"Seguridad",deck:"bank",exits:["N","E","S"],color:"#485777",icons:[["camera",72,25],["guard",28,68],["patrol",66,70,"B"]]},
+ {id:"staff",name:"Personal",deck:"bank",exits:["N","W"],color:"#4f6b5c",icons:[["vent",72,72,"B"],["guard",28,28]]},
+ {id:"tellers",name:"Cajas",deck:"bank",exits:["E","W"],color:"#5b6d51",icons:[["camera",50,25],["patrol",50,72,"A"]]},
+ {id:"secure-hall",name:"Acceso seguro",deck:"vault",exits:["N","S"],color:"#68523f",icons:[["camera",73,27],["patrol",27,70,"B"]]},
+ {id:"antechamber",name:"Antecámara",deck:"vault",exits:["N","E"],color:"#725044",icons:[["guard",30,30],["event",70,70]]},
+ {id:"deposit-boxes",name:"Cajas seg.",deck:"vault",exits:["E","W"],color:"#806a45",icons:[["event",30,70],["event",70,70],["vent",50,27,"B"]]},
+ {id:"vault",name:"BÓVEDA",deck:"vault",exits:["S"],color:"#8b6632",icons:[["loot",50,52],["camera",75,25],["event",25,72]]}
+];
+
+let selected=null, rotation=0, history=[];
+const placed=new Map(), board=document.querySelector("#board"), msg=document.querySelector("#message");
+
+function key(r,c){return r+","+c}
+function rotSide(side,n){return S[(S.indexOf(side)+n)%4]}
+function rotatedExits(t,rot){const n=(rot/90)%4;return t.exits.map(x=>rotSide(x,n))}
+function rotXY(x,y,n){for(let i=0;i<n;i++){[x,y]=[100-y,x]}return [x,y]}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+
+function iconSvg(item,rot){
+ const [type,bx,by,label]=item,n=(rot/90)%4,[x,y]=rotXY(bx,by,n);
+ if(type==="camera") return `<g transform="translate(${x} ${y})"><circle r="6" fill="#dce8ff"/><path d="M7 -4 L17 -10 L17 10 L7 4Z" fill="#9db7ff"/></g>`;
+ if(type==="guard") return `<g><circle cx="${x}" cy="${y}" r="9" fill="#1c2437" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">G</text></g>`;
+ if(type==="patrol") return `<g><circle cx="${x}" cy="${y}" r="8" fill="#182a3e" stroke="#66d4ff" stroke-width="2"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="900" fill="#8ee4ff">${label||"A"}</text></g>`;
+ if(type==="vent") return `<g transform="translate(${x-8} ${y-8})"><rect width="16" height="16" rx="2" fill="#26303c" stroke="#d6e1eb"/><path d="M4 1V15M8 1V15M12 1V15M1 4H15M1 8H15M1 12H15" stroke="#8fa0ad" stroke-width="1"/></g>`;
+ if(type==="event") return `<g><rect x="${x-8}" y="${y-8}" width="16" height="16" rx="3" fill="#532f67" stroke="#f0a8ff"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">?</text></g>`;
+ if(type==="loot") return `<text x="${x}" y="${y+7}" text-anchor="middle" font-size="23" fill="#ffd96a">◆</text>`;
+ return "";
+}
+function wall(side,door){
+ const gap1=38,gap2=62,parts=door?[[0,gap1],[gap2,100]]:[[0,100]];
+ return parts.map(([a,b])=>{
+   if(side==="N"||side==="S"){const y=side==="N"?1:99;return `<line x1="${a}" y1="${y}" x2="${b}" y2="${y}" />`}
+   const x=side==="W"?1:99;return `<line x1="${x}" y1="${a}" x2="${x}" y2="${b}" />`
+ }).join("");
+}
+function tileSvg(t,rot=0){
+ const exits=rotatedExits(t,rot);
+ return `<svg class="tile-svg" viewBox="0 0 100 100" aria-label="${esc(t.name)}">
+   <rect width="100" height="100" fill="${t.color}"/>
+   <path d="M10 10H90V90H10Z" fill="none" stroke="#ffffff12" stroke-width="1"/>
+   <g stroke="#eaf0ff" stroke-width="5" stroke-linecap="square">${S.map(s=>wall(s,exits.includes(s))).join("")}</g>
+   <text x="50" y="51" text-anchor="middle" font-size="${t.name.length>12?7:9}" font-weight="900" fill="#fff" opacity=".92">${esc(t.name)}</text>
+   ${t.icons.map(i=>iconSvg(i,rot)).join("")}
+ </svg>`;
+}
+
+function buildBoard(){
+ board.innerHTML="";
+ for(let r=0;r<9;r++)for(let c=0;c<9;c++){
+   const d=document.createElement("div"); d.className="cell"; d.dataset.r=r; d.dataset.c=c;
+   d.addEventListener("click",()=>placeAt(r,c));
+   d.addEventListener("mouseenter",()=>previewCell(d,r,c));
+   d.addEventListener("mouseleave",()=>d.classList.remove("good","bad"));
+   board.append(d);
+ }
+ renderBoard();
+}
+function renderBoard(){
+ document.querySelectorAll(".cell").forEach(c=>c.innerHTML="");
+ for(const [k,p] of placed){const [r,c]=k.split(",").map(Number);board.children[r*9+c].innerHTML=tileSvg(p.tile,p.rot)}
+ let bank=0,vault=0; for(const p of placed.values()){if(p.tile.deck==="vault")vault++;else bank++}
+ document.querySelector("#bankCount").textContent=bank;document.querySelector("#vaultCount").textContent=vault;
+}
+function validate(t,rot,r,c){
+ if(placed.has(key(r,c)))return [false,"Esa casilla ya está ocupada."];
+ const exits=rotatedExits(t,rot); let connected=false,neighbors=0;
+ for(const side of S){
+   const [dr,dc]=D[side], nr=r+dr,nc=c+dc;
+   if(nr<0||nr>8||nc<0||nc>8)continue;
+   const n=placed.get(key(nr,nc)); if(!n)continue; neighbors++;
+   const my=exits.includes(side), his=rotatedExits(n.tile,n.rot).includes(O[side]);
+   if(my!==his)return [false,`No encastra: ${side} tiene ${my?"puerta":"pared"} contra ${his?"puerta":"pared"}.`];
+   if(my&&his)connected=true;
+ }
+ if(!neighbors)return [false,"La loseta tiene que tocar el banco existente."];
+ if(!connected)return [false,"Toca el banco, pero no hay ninguna puerta que conecte ambas losetas."];
+ return [true,"Encastre válido."];
+}
+function placeAt(r,c){
+ if(!selected){say("Primero elegí o robá una loseta.",false);return}
+ const [ok,why]=validate(selected,rotation,r,c); if(!ok){say(why,false);return}
+ placed.set(key(r,c),{tile:selected,rot:rotation});history.push(key(r,c));renderBoard();say(selected.name+" colocada.",true);
+ selected=null;rotation=0;renderSelected();
+}
+function previewCell(el,r,c){if(!selected||placed.has(key(r,c)))return;const [ok]=validate(selected,rotation,r,c);el.classList.add(ok?"good":"bad")}
+function chooseTile(id){selected=TILES.find(t=>t.id===id);rotation=0;renderSelected();say("Loseta seleccionada: "+selected.name+".",true)}
+function drawTile(deck){const a=TILES.filter(t=>t.deck===deck);chooseTile(a[Math.floor(Math.random()*a.length)].id)}
+function rotateSelected(){if(!selected)return;srotation=(rotation+90)%360;rotation=srotation;renderSelected()}
+function cancelSelected(){selected=null;rotation=0;renderSelected()}
+function renderSelected(){document.querySelector("#selected").innerHTML=selected?tileSvg(selected,rotation):'<span class="hint">Elegí una loseta</span>'}
+function undo(){const k=history.pop();if(!k)return;say("Última loseta retirada.",true);placed.delete(k);renderBoard()}
+function resetBoard(){placed.clear();history=[];placed.set(key(4,4),{tile:TILES[0],rot:0});selected=null;rotation=0;renderSelected();renderBoard();say("Banco reiniciado. La recepción vuelve al centro.",true)}
+function say(t,ok){msg.textContent=t;msg.className="message "+(ok?"ok":"bad")}
+function buildPalette(){
+ const p=document.querySelector("#palette");
+ TILES.filter(t=>t.deck!=="special").forEach(t=>{const b=document.createElement("button");b.title=t.name;b.innerHTML=tileSvg(t,0);b.onclick=()=>chooseTile(t.id);p.append(b)})
+}
+document.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="r")rotateSelected()});
+let srotation=0;
+buildPalette();buildBoard();resetBoard();
+</script>
+</body>
+</html>

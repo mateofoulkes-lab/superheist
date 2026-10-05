@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SuperHeist Lab</title>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#f5f7ff;background:#0d1020}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,#242b5a 0,transparent 35%),#0d1020}
+header,main{width:min(1080px,92vw);margin:auto} header{padding:64px 0 24px}
+.eyebrow{color:#9da7ff;text-transform:uppercase;letter-spacing:.16em;font-weight:800;font-size:.78rem}
+h1{font-size:clamp(2.5rem,7vw,5.2rem);line-height:.95;margin:.15em 0}.sub{color:#b9bfd8;max-width:720px;font-size:1.08rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding:24px 0 64px}
+.card{display:block;color:inherit;text-decoration:none;background:#171b31;border:1px solid #30385e;border-radius:20px;padding:22px;transition:.18s transform,.18s border-color}
+.card:hover{transform:translateY(-4px);border-color:#8f9cff}.tag{display:inline-block;border-radius:999px;background:#262c50;padding:5px 10px;color:#aeb7ff;font-size:.75rem;font-weight:800}
+.card h2{margin:.8rem 0 .35rem}.card p{color:#b9bfd8;margin:0}.status{color:#8992b6;padding:8px 0 48px}
+footer{border-top:1px solid #242943;padding:20px 0;color:#737c9f}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">SuperHeist / mesa de diseño</div>
+  <h1>Toolbox</h1>
+  <p class="sub">Herramientas para diseñar, probar y balancear el juego. Esta portada descubre automáticamente las carpetas publicadas en <code>/tools</code> del branch <b>main</b>.</p>
+</header>
+<main>
+  <section id="tools" class="grid"></section>
+  <div id="status" class="status">Buscando herramientas en main…</div>
+  <footer>SuperHeist prototype lab · mateofoulkes-lab/superheist</footer>
+</main>
+<script>
+const REPO="mateofoulkes-lab/superheist", BRANCH="main";
+const list=document.querySelector("#tools"), status=document.querySelector("#status");
+
+function addCard(meta,slug){
+  const a=document.createElement("a");
+  a.className="card"; a.href=`tools/${slug}/`;
+  a.innerHTML=`<span class="tag">${meta.status||"tool"}</span><h2>${meta.title||slug}</h2><p>${meta.description||""}</p>`;
+  list.append(a);
+}
+async function load(){
+  try{
+    const r=await fetch(`https://api.github.com/repos/${REPO}/contents/tools?ref=${BRANCH}`);
+    if(!r.ok) throw new Error("GitHub API "+r.status);
+    const dirs=(await r.json()).filter(x=>x.type==="dir").sort((a,b)=>a.name.localeCompare(b.name));
+    const metas=await Promise.all(dirs.map(async d=>{
+      try{
+        const m=await fetch(`https://raw.githubusercontent.com/${REPO}/${BRANCH}/tools/${d.name}/tool.json`);
+        return [d.name,m.ok?await m.json():{title:d.name,description:"Herramienta de diseño"}];
+      }catch{return [d.name,{title:d.name,description:"Herramienta de diseño"}]}
+    }));
+    metas.forEach(([slug,meta])=>addCard(meta,slug));
+    status.textContent=metas.length?`${metas.length} herramienta(s) encontrada(s) automáticamente.`:"Todavía no hay herramientas.";
+  }catch(e){
+    addCard({title:"Constructor de Banco",status:"v0.1",description:"Arma un banco modular con losetas, puertas, cámaras, guardias, ventilación y eventos."},"bank-builder");
+    status.textContent="No pude consultar la API de GitHub; muestro el acceso de emergencia a las herramientas conocidas.";
+  }
+}
+load();
+</script>
+</body>
+</html>
