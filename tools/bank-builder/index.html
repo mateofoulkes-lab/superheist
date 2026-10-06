@@ -52,7 +52,7 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
 <header>
   <a href="../../">← Toolbox</a>
   <h1>SuperHeist · Constructor de Banco + Preparador de Partida</h1>
-  <span style="color:#8d96b6">v0.4</span>
+  <span style="color:#8d96b6">v0.5</span>
 </header>
 <div class="wrap">
 <aside>
@@ -181,12 +181,12 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
     </section>
 
     <section class="export-zone">
-      <div class="export-actions"><button class="primary" onclick="copySetupText()">📋 Copiar resultados para ChatGPT</button><span id="copyStatus" class="hint">Incluye secretos: está pensado para el diseñador/simulador, no para entregar a los jugadores.</span></div>
+      <div class="export-actions"><button class="primary" onclick="copySetupText()">📋 Copiar resultados para ChatGPT</button><span id="copyStatus" class="hint">Incluye secretos y un snapshot JSON exacto del mapa para generar replays; está pensado para el diseñador/simulador, no para entregar a los jugadores.</span></div>
       <textarea id="setupText" readonly placeholder="Prepará una partida y acá aparecerá el estado completo del juego."></textarea>
     </section>
 
     <details id="libraryDetails" class="library" ontoggle="maybeRenderLibrary()">
-      <summary>Biblioteca completa de cartas del prototipo v0.4</summary>
+      <summary>Biblioteca completa de cartas del prototipo v0.5</summary>
       <div id="libraryArea" class="library-sections"></div>
     </details>
   </div>
@@ -607,9 +607,61 @@ function renderPreparedGame(){
 function relativeCoord(k){const [r,c]=parseKey(k);return {x:c-4,y:4-r}}
 function iconSummary(tile){const counts={};for(const i of tile.icons)counts[i[0]]=(counts[i[0]]||0)+1;const names={camera:"cámara",guard:"puesto G",vent:"ducto",event:"?",loot:"◆"};return Object.entries(counts).map(([k,v])=>`${names[k]||k}${v>1?" x"+v:""}`).join(", ")||"sin iconos"}
 function ventSummary(){const nets={};for(const [k,p] of placed){for(const i of p.tile.icons){if(i[0]==="vent"){const net=i[3]||"?";{const q=relativeCoord(k);(nets[net]??=[]).push(`${p.tile.name} (${q.x},${q.y})`)}}}}return nets}
+function buildReplaySnapshot(){
+ const rooms=[...placed.entries()].map(([k,p])=>{
+   const [row,col]=parseKey(k),q=relativeCoord(k);
+   return {
+     key:k,row,col,x:q.x,y:q.y,
+     tileId:p.tile.id,name:p.tile.name,deck:p.tile.deck,color:p.tile.color,
+     rot:p.rot,
+     exits:rotatedExits(p.tile,p.rot),
+     icons:p.tile.icons.map(i=>[...i])
+   };
+ });
+ const snap={
+   schema:"superheist-replay-snapshot",
+   version:"0.5",
+   board:{rows:9,cols:9,receptionKey:key(4,4),carKey:CAR_KEY,coordinateOrigin:"reception"},
+   objective:gameSetup.groupObjective,
+   sherlock:{initial:gameSetup.sherlockInitial,remaining:gameSetup.sherlock},
+   rooms,
+   vents:ventSummary(),
+   patrols:patrols.map(p=>({
+     id:p.id,color:p.color,colorName:colorName(p.color),
+     post:p.post,nodes:[...p.nodes],kind:p.kind,
+     guardCard:p.guardCard||null
+   })),
+   players:gameSetup.players.map(p=>({
+     id:"J"+p.index,index:p.index,color:p.color,colorName:p.colorName,
+     character:p.character,power:p.power,failure:p.failure,objective:p.objective,
+     items:p.items||[],start:"outside"
+   })),
+   swats:gameSetup.swats.map(s=>({
+     id:"S"+s.index,index:s.index,color:s.color,colorName:s.colorName,
+     card:s.card,start:"inactive"
+   })),
+   events:gameSetup.events.map(e=>({
+     id:"E:"+e.roomKey+":"+e.slot,roomKey:e.roomKey,room:e.room,slot:e.slot,card:e.card
+   })),
+   loot:gameSetup.loot.map((x,i)=>({
+     id:"L"+(i+1),roomKey:x.roomKey,room:x.room,value:x.value,revealed:false
+   })),
+   initialState:{
+     alert:0,sherlock:gameSetup.sherlock,
+     depositedLoot:0,
+     players:Object.fromEntries(gameSetup.players.map(p=>["J"+p.index,{position:"outside",status:"active",carryingLoot:0,boarded:false}])),
+     guards:Object.fromEntries(patrols.map(p=>["G"+p.id,{position:p.post,status:"active"}])),
+     swats:Object.fromEntries(gameSetup.swats.map(s=>["S"+s.index,{position:"inactive",status:"inactive"}])),
+     revealedEvents:[],
+     revealedLoot:[]
+   }
+ };
+ return snap;
+}
+
 function buildSetupText(){
  if(!gameSetup)return "";
- let out=[];out.push("SUPERHEIST / SUPERATRACO — SETUP COMPLETO v0.4","================================================","","REGLAS BASE PARA LA SIMULACIÓN",
+ let out=[];out.push("SUPERHEIST / SUPERATRACO — SETUP COMPLETO v0.5","================================================","","REGLAS BASE PARA LA SIMULACIÓN",
  "- 1 ronda ≈ 10 segundos. Cada personaje hace 1 acción; luego avanzan seguridad/guardias.",
  "- Tirada normal: 1d10 + habilidad contra dificultad. Poderes usan Fiabilidad secreta; IMPOSTOR prevalece sobre cualquier override del poder.",
  "- INSISTIR: repetir inmediatamente la misma acción contra el mismo objetivo aumenta la dificultad +1 acumulativo. En poderes, ampliá el rango de fallo en 1. Una acción distinta, MOVER, DESCANSAR, cambiar de objetivo/método o recibir una intervención significativa resetea la penalización. Una repetición concedida por un poder no cuenta como nuevo intento.",
@@ -633,6 +685,7 @@ function buildSetupText(){
  out.push("","EVENTOS OCULTOS (estado omnisciente para simulación)");if(!gameSetup.events.length)out.push("- Ninguno");for(const e of gameSetup.events){const q=relativeCoord(e.roomKey);out.push(`- ${e.room} (${q.x},${q.y}) ?${e.slot}: ${e.card.name} [${e.card.category}] — ${e.card.text}${e.card.lootValue?` | BOTÍN EXTRA=+${e.card.lootValue}`:""}`)}
  out.push("","OLEADA SWAT (entra cuando corresponda; en ese momento salen los guardias normales)");for(const s of gameSetup.swats){const x=s.card;out.push(`- SWAT ${s.index} / ${s.colorName}: ${x.name}; PER=${x.stats.percepcion} COM=${x.stats.combate} TEM=${x.stats.temple}; Rasgo=${x.trait}; Mismo color=${x.same.replace(/^Mismo color:\s*/,"")}`)}
  out.push("","PEDIDO AL SIMULADOR","Durante planificación, tratá como desconocidos para los jugadores los valores de botín, eventos, conexiones reales de ductos, Fiabilidad, objetivos y Equipo ajeno salvo que una regla o jugador los revele. Decidí qué gastarían de SHERLOCK entre inteligencia y Equipo, permití negociaciones/intercambios y proponé un plan razonable. Después simulá ronda por ronda aplicando INSISTIR, patrullas, Atención/Alerta, combate, botín oculto, extracción al auto y posible SWAT. Los diálogos son sólo color narrativo: las decisiones de guardias deben salir de sus reglas y tiradas. Cuando haya una decisión genuina de un jugador, elegí una opción plausible según su información y objetivo secreto.");
+ out.push("","REPLAY_SNAPSHOT_JSON — COPIAR TAMBIÉN ESTE BLOQUE","---BEGIN SUPERHEIST REPLAY SNAPSHOT---",JSON.stringify(buildReplaySnapshot()),"---END SUPERHEIST REPLAY SNAPSHOT---");
  return out.join("\n");
 }
 
