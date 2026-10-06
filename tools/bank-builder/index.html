@@ -52,7 +52,7 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
 <header>
   <a href="../../">← Toolbox</a>
   <h1>SuperHeist · Constructor de Banco + Preparador de Partida</h1>
-  <span style="color:#8d96b6">v0.5</span>
+  <span style="color:#8d96b6">v0.6</span>
 </header>
 <div class="wrap">
 <aside>
@@ -186,7 +186,7 @@ kbd{background:#252b43;border:1px solid #39415e;border-bottom-width:3px;border-r
     </section>
 
     <details id="libraryDetails" class="library" ontoggle="maybeRenderLibrary()">
-      <summary>Biblioteca completa de cartas del prototipo v0.5</summary>
+      <summary>Biblioteca completa de cartas del prototipo v0.6</summary>
       <div id="libraryArea" class="library-sections"></div>
     </details>
   </div>
@@ -387,15 +387,28 @@ function graphDistances(cells,start){
 }
 function chooseVaultCells(cells,count){
  const start=key(4,4),{dist,parent}=graphDistances(cells,start);
- const leaves=[...cells].filter(k=>k!==start&&cellDegree(k,cells)===1).sort((a,b)=>(dist.get(b)||0)-(dist.get(a)||0));
- for(const leaf of leaves){
-   const path=[];let cur=leaf;
-   while(cur&&cur!==start){path.push(cur);cur=parent.get(cur)}
-   const tail=path.slice(0,count);
-   if(tail.length===count && tail.every(k=>cellDegree(k,cells)<=2))return new Set(tail);
+ const leaves=[...cells]
+   .filter(k=>k!==start&&cellDegree(k,cells)===1&&(dist.get(k)||0)>=2)
+   .sort((a,b)=>(dist.get(b)||0)-(dist.get(a)||0));
+ if(leaves.length<count)return null;
+
+ // Elegimos hojas profundas y, a igualdad, las separamos espacialmente.
+ const selected=[];
+ while(selected.length<count){
+   let best=null,bestScore=-Infinity;
+   for(const k of leaves){
+     if(selected.includes(k))continue;
+     const [r,c]=parseKey(k);
+     const spread=selected.length?Math.min(...selected.map(s=>{const [sr,sc]=parseKey(s);return Math.abs(r-sr)+Math.abs(c-sc)})):4;
+     const score=(dist.get(k)||0)*10+spread*3+Math.random();
+     if(score>bestScore){bestScore=score;best=k}
+   }
+   if(!best)return null;
+   selected.push(best);
  }
- return null;
+ return new Set(selected);
 }
+
 function fittingTile(required,deck,forceVault=false){
  const pool=TILES.filter(t=>t.deck===deck && (!forceVault || t.id==="vault"));
  const choices=[];
@@ -405,39 +418,64 @@ function fittingTile(required,deck,forceVault=false){
 function assignLayout(cells,vaultCells){
  const out=new Map(),receptionKey=key(4,4);
  out.set(receptionKey,{tile:TILES[0],rot:0});
- const {dist}=graphDistances(cells,receptionKey);
- let vaultLeaf=[...vaultCells].sort((a,b)=>(dist.get(b)||0)-(dist.get(a)||0))[0];
+ const {parent}=graphDistances(cells,receptionKey);
+
+ // La habitación inmediatamente anterior a cada bóveda intenta ser zona segura
+ // (Antecámara / Acceso seguro / Cajas seg.) cuando su geometría lo permite.
+ const secureSupport=new Set();
+ for(const v of vaultCells){
+   const p=parent.get(v);
+   if(p&&p!==receptionKey&&!vaultCells.has(p))secureSupport.add(p);
+ }
 
  for(const k of cells){
    if(k===receptionKey)continue;
    const req=requiredExits(k,cells);
-   let fit;
+   let fit=null;
+
    if(vaultCells.has(k)){
-     fit=fittingTile(req,"vault",k===vaultLeaf);
-     if(!fit)fit=fittingTile(req,"vault",false);
+     // IMPORTANTE: cada celda elegida es una BÓVEDA REAL, no sólo una loseta del mazo vault.
+     fit=fittingTile(req,"vault",true);
+     if(!fit)return null;
+   }else if(secureSupport.has(k)){
+     // Preferimos arquitectura segura delante de cada bóveda, pero si no encastra
+     // usamos una loseta bancaria normal.
+     fit=fittingTile(req,"vault",false);
+     if(fit?.tile?.id==="vault")fit=null;
+     if(!fit)fit=fittingTile(req,"bank",false);
    }else{
      fit=fittingTile(req,"bank",false);
    }
+
    if(!fit)return null;
    out.set(k,fit);
  }
  return out;
 }
+
 function autoGenerateBank(){
  const target=Number(document.querySelector("#bankSize").value)||15;
- const vaultCount=target<=12?2:3;
+ const vaultCount=target<=12?2:(target<=15?3:4);
  let generated=null;
- for(let attempt=0;attempt<250&&!generated;attempt++){
+
+ for(let attempt=0;attempt<1500&&!generated;attempt++){
    const cells=randomLayout(target);if(!cells)continue;
    const vaultCells=chooseVaultCells(cells,vaultCount);if(!vaultCells)continue;
    const assigned=assignLayout(cells,vaultCells);if(assigned)generated=assigned;
  }
- if(!generated){say("No pude generar un banco válido. Probá de nuevo.",false);return}
+
+ if(!generated){
+   say(`No pude generar un banco con ${vaultCount} bóvedas reales bien ubicadas. Probá otra vez.`,false);
+   return;
+ }
+
  placed.clear();history=[];patrols=[];
  for(const [k,v] of generated)placed.set(k,v);
  renderBoard();
  generatePatrols(false);
- say(`Banco automático generado: ${placed.size} losetas y ${patrols.length} patrullas.`,true);
+
+ const actualVaults=[...placed.values()].filter(p=>p.tile.id==="vault").length;
+ say(`Banco automático generado: ${placed.size} losetas, ${actualVaults} BÓVEDAS reales y ${patrols.length} patrullas.`,true);
 }
 
 function connectedNeighbors(k){
@@ -494,7 +532,7 @@ function generatePatrols(announce=true){
 
 
 
-const GROUP_OBJECTIVE={name:"BANK CLEARING",text:"Depositen al menos 6 unidades de botín en el auto de escape y consigan que al menos la mitad del equipo SUBA al auto. Entonces el vehículo puede partir. Los valores de los tokens de botín de las zonas seguras permanecen ocultos hasta acceder a ellos."};
+const GROUP_OBJECTIVE={name:"BANK CLEARING",text:"El banco contiene varias BÓVEDAS con tokens de botín boca abajo. Depositen al menos 6 unidades de botín en el auto de escape y consigan que al menos la mitad del equipo SUBA al auto. Entonces el vehículo puede partir. El valor de cada bóveda permanece oculto hasta acceder a ella."};
 function colorName(color){const i=COLORS.indexOf(color);return i>=0?COLOR_NAMES[i]:color}
 function takeRandom(deck,n){return shuffle(deck).slice(0,n)}
 function statsHTML(s,enemy=false){const arr=enemy?[["percepcion","PER"],["combate","COM"],["temple","TEM"]]:[["sigilo","SIG"],["tecnica","TEC"],["labia","LAB"],["fisico","FIS"],["temple","TEM"]];return `<div class="mini-stats ${enemy?"three":""}">${arr.map(([k,l])=>`<div class="mini-stat">${l}<b>${s[k]}</b></div>`).join("")}</div>`}
@@ -563,21 +601,31 @@ function dealEvents(){
  return assignments;
 }
 function lootCandidateKeys(){
- const preferred=[...placed.entries()].filter(([,p])=>["vault","deposit-boxes"].includes(p.tile.id)).map(([k])=>k);
- const fallback=[...placed.entries()].filter(([k,p])=>p.tile.deck==="vault"&&!preferred.includes(k)).map(([k])=>k);
- const all=[...new Set([...preferred,...fallback])];
- if(all.length>=2)return all;
- const {dist}=graphDistances(new Set(placed.keys()),key(4,4));
- const extra=[...placed.keys()].filter(k=>k!==key(4,4)&&!all.includes(k)).sort((a,b)=>(dist.get(b)||0)-(dist.get(a)||0));
- return [...all,...extra.slice(0,2-all.length)];
+ const vaults=[...placed.entries()].filter(([,p])=>p.tile.id==="vault").map(([k])=>k);
+ if(vaults.length)return vaults;
+
+ // Fallback para mapas manuales viejos sin BÓVEDA real.
+ return [...placed.entries()]
+   .filter(([,p])=>["deposit-boxes","antechamber"].includes(p.tile.id))
+   .map(([k])=>k);
 }
 function dealLoot(target){
- let spots=lootCandidateKeys().slice(0,3);if(spots.length<2)return [];
- let vals=[];vals.push(1+Math.floor(Math.random()*2));vals.push(3+Math.floor(Math.random()*2));while(vals.length<spots.length)vals.push(1+Math.floor(Math.random()*4));
- while(vals.reduce((a,b)=>a+b,0)<target){const candidates=vals.map((v,i)=>v<4?i:-1).filter(i=>i>=0);if(!candidates.length)break;vals[candidates[Math.floor(Math.random()*candidates.length)]]++}
- vals=shuffle(vals);spots=shuffle(spots);
+ let spots=shuffle(lootCandidateKeys());
+ if(!spots.length)return [];
+
+ // Cada bóveda real recibe SIEMPRE un token. Valor inicial 1–4.
+ let vals=spots.map(()=>1+Math.floor(Math.random()*4));
+
+ // Garantía matemática: el banco nunca puede contener menos que el mínimo para ganar.
+ while(vals.reduce((a,b)=>a+b,0)<target){
+   const candidates=vals.map((v,i)=>v<4?i:-1).filter(i=>i>=0);
+   if(!candidates.length)break;
+   vals[candidates[Math.floor(Math.random()*candidates.length)]]++;
+ }
+
  return spots.map((k,i)=>({roomKey:k,room:placed.get(k)?.tile.name||k,value:vals[i]}));
 }
+
 function prepareGame(){
  const n=Math.max(3,Math.min(6,Number(document.querySelector("#playerCount").value)||4));
  if(placed.size<6){say("Armá o generá un banco antes de preparar la partida.",false);return}
@@ -661,7 +709,7 @@ function buildReplaySnapshot(){
 
 function buildSetupText(){
  if(!gameSetup)return "";
- let out=[];out.push("SUPERHEIST / SUPERATRACO — SETUP COMPLETO v0.5","================================================","","REGLAS BASE PARA LA SIMULACIÓN",
+ let out=[];out.push("SUPERHEIST / SUPERATRACO — SETUP COMPLETO v0.6","================================================","","REGLAS BASE PARA LA SIMULACIÓN",
  "- 1 ronda ≈ 10 segundos. Cada personaje hace 1 acción; luego avanzan seguridad/guardias.",
  "- Tirada normal: 1d10 + habilidad contra dificultad. Poderes usan Fiabilidad secreta; IMPOSTOR prevalece sobre cualquier override del poder.",
  "- INSISTIR: repetir inmediatamente la misma acción contra el mismo objetivo aumenta la dificultad +1 acumulativo. En poderes, ampliá el rango de fallo en 1. Una acción distinta, MOVER, DESCANSAR, cambiar de objetivo/método o recibir una intervención significativa resetea la penalización. Una repetición concedida por un poder no cuenta como nuevo intento.",
