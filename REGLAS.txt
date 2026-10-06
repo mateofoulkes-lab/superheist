@@ -1,0 +1,248 @@
+SUPERHEIST / SUPERATRACO — REGLAS DE PROTOTIPO v0.4
+=====================================================
+
+ESTADO
+Documento vivo de diseño. Estas reglas priorizan velocidad, planificación, información incompleta y narración emergente por encima de simulación detallada.
+
+1. OBJETIVO — BANK CLEARING
+----------------------------
+El banco contiene varios puntos de botín con tokens boca abajo.
+El setup SIEMPRE debe colocar suficiente botín base dentro del banco para que sea matemáticamente posible ganar sin depender de eventos aleatorios.
+
+Objetivo grupal actual:
+- Depositar al menos 6 unidades de botín en el auto de escape.
+- Conseguir que al menos la mitad del equipo SUBA al auto.
+- Cuando ambas condiciones se cumplen, el auto puede partir.
+- Cualquier personaje que quede afuera cuando el auto parte queda atrás.
+
+Los eventos pueden agregar botín extra, pero nunca son necesarios para que el banco tenga suficiente valor total.
+
+2. PERSONAJE
+------------
+Cada jugador recibe:
+- 1 carta de Personaje con SIGILO, TÉCNICA, LABIA, FÍSICO y TEMPLE.
+- 1 carta de Superpoder.
+- 1 carta secreta de Fiabilidad/Fracaso.
+- 1 Objetivo personal secreto.
+- 0 o más cartas de Equipo secreto compradas durante Preparación.
+
+Puede haber cero, uno o varios objetivos egoístas, oscuros o de traición. Incluso todos los jugadores pueden tener agendas incompatibles.
+
+3. FIABILIDAD Y PODERES
+-----------------------
+Cuando un poder exige tirada, se tira 1d10 públicamente.
+La carta secreta de Fiabilidad indica qué resultados hacen fallar ese poder.
+Los demás ven el dado y el resultado narrado, pero no la carta.
+
+IMPOSTOR:
+- No posee realmente el poder declarado.
+- Resuelve la acción mediante la habilidad mundana apropiada.
+- Puede mentir sobre por qué falló, pero nunca sobre el resultado mecánico.
+- IMPOSTOR prevalece sobre cualquier texto del poder que anule Fiabilidad.
+
+Algunos poderes excepcionalmente fuertes imprimen su propio rango de éxito/fallo y anulan la Fiabilidad normal.
+
+4. RONDAS Y ACCIONES
+--------------------
+1 ronda representa aproximadamente 10 segundos.
+En cada ronda:
+1) Cada personaje realiza 1 acción, en el orden que el grupo decida.
+2) Se mueven/resuelven guardias y seguridad.
+3) Se resuelven Atención, Alerta y consecuencias.
+
+Acciones universales:
+- MOVER.
+- INTERACTUAR.
+- OCULTARSE.
+- AYUDAR.
+- USAR PODER.
+- DESCANSAR.
+- ENTREGAR/INTERCAMBIAR un objeto durante el golpe (misma habitación).
+
+5. INSISTIR — REPETICIONES
+---------------------------
+No se puede martillar la misma tirada hasta sacar un número alto.
+
+Si un personaje repite INMEDIATAMENTE la misma acción contra el mismo objetivo:
+- La dificultad aumenta +1 acumulativo por cada repetición consecutiva.
+- Si es una tirada de Poder basada en rango de fallo, el rango de fallo se amplía en 1 número por repetición.
+  Ejemplo: falla 1–2; segundo intento consecutivo falla 1–3; tercero 1–4.
+- Si el poder usa un rango propio (ej. sólo funciona con 9–10), la exigencia empeora de forma equivalente cuando sea posible.
+
+La penalización se reinicia si antes:
+- hace una acción diferente;
+- se MUEVE;
+- DESCANSA;
+- cambia de objetivo o método;
+- recibe una intervención significativa de otro jugador u objeto.
+
+Una repetición otorgada por un poder, como Segunda oportunidad, NO cuenta como un nuevo intento.
+
+6. GUARDIAS
+------------
+Las losetas sólo imprimen PUESTOS DE GUARDIA, no rutas.
+
+Después de construir el banco:
+- Cada puesto recibe una mini con base de color.
+- Se crean 2 nodos de ronda del mismo color.
+- Mini + 2 nodos = ruta de exactamente 3 habitaciones conectadas.
+- Siempre que sea posible, distintas patrullas no se cruzan.
+- La tercera ficha de ese color se coloca sobre la carta de Guardia correspondiente.
+
+Las cartas de Guardia tienen:
+- PERcepción.
+- COMbate.
+- TEMple.
+- Rasgo especial.
+- Efecto especial contra el personaje del mismo color.
+
+No hay Game Master.
+Las conversaciones con guardias son sólo narración imaginada. Mecánicamente se resuelven por reglas, stats, cartas y tiradas.
+
+7. ATENCIÓN, ALERTA Y SWAT
+--------------------------
+ATENCIÓN es local: algo raro ocurrió en una habitación.
+ALERTA es global: el banco sabe que existe una amenaza.
+
+Escala de prototipo:
+0 Normal.
+1 Sospecha.
+2 Alerta.
+3 LOCKDOWN.
+4 SWAT LLAMADO.
+
+Cuando se llama al SWAT comienza la cuenta regresiva del escenario.
+Cuando SWAT entra físicamente:
+- se retiran los guardias normales;
+- entran minis SWAT con sus propias cartas/stats;
+- escapar todavía es posible, pero el golpe está cerca de la derrota.
+
+8. COMBATE
+----------
+Encontrar un guardia/SWAT no obliga siempre a combatir: pueden usarse Labia, Sigilo, poderes, objetos u otras soluciones.
+
+Ganarle físicamente a un enemigo normalmente lo deja REDUCIDO, no muerto.
+
+Matar es una decisión deliberada y puede ser requerida por objetivos oscuros.
+La violencia letal, un disparo, un cuerpo encontrado o una escena evidente pueden aumentar Atención/Alerta según el caso.
+
+No se usan puntos de vida en esta versión.
+
+9. DUCTOS
+---------
+Las rejillas de ventilación son visibles en las losetas.
+Las conexiones ENTRE rejillas NO son públicas de base.
+
+Los jugadores pueden descubrirlas mediante SHERLOCK, poderes, eventos o exploración.
+El estado omnisciente exportado por la herramienta sí contiene la red real para que el simulador sepa la verdad.
+
+Entrar, desplazarse y salir consume acciones según la situación/poder. Los ductos son una red secundaria de movimiento, no teletransporte gratis.
+
+10. BOTÍN
+---------
+Los puntos de botín seguro reciben tokens boca abajo con valores pequeños/grandes.
+El valor NO se conoce hasta acceder a ese punto.
+
+La herramienta distribuye valores aleatorios y garantiza que la suma del botín base sea al menos 6.
+
+Los eventos también pueden entregar tokens de botín:
+ejemplo: un empleado escondió un bolso con un lingote que pensaba robar.
+
+Todo botín recuperado puede contar para el objetivo grupal una vez DEPOSITADO en el auto, salvo que una carta diga lo contrario.
+
+11. SHERLOCK — RECONOCIMIENTO Y ADQUISICIÓN
+--------------------------------------------
+Reserva inicial actual: cantidad de jugadores + 2.
+
+SHERLOCK puede gastarse antes/durante el golpe para obtener información del escenario según las reglas del escenario.
+
+Durante PREPARACIÓN también puede gastarse en Equipo:
+- Pagar 1 SHERLOCK = robar 1 carta de Equipo AL AZAR.
+- El Equipo robado es secreto.
+- No existe una tienda donde elegir la solución perfecta.
+- Un jugador puede mostrarlo, ocultarlo o mentir sobre lo que recibió.
+- Los jugadores pueden intercambiar Equipo voluntariamente.
+
+Intercambio:
+- Durante Preparación: gratis.
+- Durante el golpe: misma habitación + 1 acción para entregar/intercambiar.
+
+12. EQUIPO
+----------
+Ejemplos del mazo:
+- Ganzúas.
+- Kit de disfraz.
+- Chaleco antibalas.
+- Arma corta.
+- Taser.
+- Bomba de humo.
+- Jammer.
+- Herramientas.
+- Credencial falsa.
+- Carga de brecha.
+- Moto portátil.
+- Llamar cómplice.
+- Auto señuelo.
+- Bolso de extracción.
+- Teléfono descartable.
+- Espejo telescópico.
+- Microcámara.
+- Emisor de ruido.
+- Taladro.
+- EMP.
+- Llave maestra.
+- Botiquín.
+- Bridas.
+- Linterna forense.
+
+La gracia es que el objeto puede ser redundante o inútil para quien lo roba y valioso para otro.
+Ejemplo:
+"Me tocó Kit de disfraz pero tengo Metamorfosis. ¿Alguien cambia?"
+"¿Vos qué tenés?"
+"Qué te importa."
+
+13. AUTO DE ESCAPE Y EXTRACCIÓN
+-------------------------------
+El auto está fuera de Recepción.
+
+Llegar a la salida del banco NO significa haber escapado.
+
+Secuencia normal:
+1) MOVER hasta el auto.
+2) Si llevás botín: DEPOSITAR todo lo que decidís dejar en el auto = 1 acción.
+3) SUBIR al auto = 1 acción.
+
+Si no llevás botín, sólo necesitás SUBIR.
+
+Cuando el auto parte:
+- quienes están a bordo escapan;
+- el botín depositado cuenta para el objetivo;
+- quien siga afuera queda atrás.
+
+Algunos objetos pueden romper esta regla, por ejemplo Moto portátil, Cómplice o Bolso de extracción.
+
+14. OBJETIVOS SECRETOS
+----------------------
+Los objetivos deberían torcer decisiones razonables, no obligar a un jugador a comportarse absurdamente sólo para disparar una fase del juego.
+
+Se eliminan por ahora objetivos del tipo:
+- "esperá adentro hasta que llegue SWAT";
+- "provocá SWAT porque sí".
+
+Sí se permiten objetivos egoístas/oscuros/traidores como:
+- llevarte más botín;
+- ser primero/último en subir al auto;
+- matar un guardia;
+- conseguir que arresten a otro;
+- retrasar deliberadamente a un compañero;
+- terminar con Equipo que pertenecía a otro;
+- "el jugador de tu derecha es tu enemigo mortal: conseguí que no suba al auto".
+
+15. PRINCIPIO DE DISEÑO
+-----------------------
+El banco debe ser razonablemente predecible.
+Los jugadores, sus poderes, objetivos, Fiabilidad y Equipo son la parte impredecible.
+
+Las sorpresas deben tener causas y, cuando sea posible, haber podido descubrirse mediante planificación.
+El mejor resultado es que los jugadores terminen diciendo:
+"Nuestro plan era perfecto hasta que pasó ESTO."
