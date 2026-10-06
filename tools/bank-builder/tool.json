@@ -1,6 +1,6 @@
 {
   "title": "Constructor de Banco + Preparador",
-  "status": "v0.4",
-  "description": "Genera banco, patrullas, botín oculto garantizado, personajes y enemigos; permite comprar Equipo secreto aleatorio con SHERLOCK, intercambiarlo y exportar una partida con extracción al auto.",
+  "status": "v0.5",
+  "description": "Genera banco, patrullas, botín oculto, Equipo y setup completo; además exporta un snapshot JSON exacto para reconstruir partidas en el Replay.",
   "order": 1
 }
