@@ -42,10 +42,11 @@ async function load(){
   try{
     const r=await fetch(`https://api.github.com/repos/${REPO}/contents/tools?ref=${BRANCH}`);
     if(!r.ok) throw new Error("GitHub API "+r.status);
-    const dirs=(await r.json()).filter(x=>x.type==="dir").sort((a,b)=>a.name.localeCompare(b.name));
+    const remote=(await r.json()).filter(x=>x.type==="dir").map(x=>x.name);
+    const dirs=[...new Set([...remote,"bank-builder","game-replay","simulator"])].sort().map(name=>({name}));
     const metas=await Promise.all(dirs.map(async d=>{
       try{
-        const m=await fetch(`https://raw.githubusercontent.com/${REPO}/${BRANCH}/tools/${d.name}/tool.json`);
+        const m=await fetch(`tools/${d.name}/tool.json`);
         return [d.name,m.ok?await m.json():{title:d.name,description:"Herramienta de diseño"}];
       }catch{return [d.name,{title:d.name,description:"Herramienta de diseño"}]}
     }));
@@ -53,7 +54,9 @@ async function load(){
     status.textContent=metas.length?`${metas.length} herramienta(s) encontrada(s) automáticamente.`:"Todavía no hay herramientas.";
   }catch(e){
     addCard({title:"Constructor de Banco",status:"v0.1",description:"Arma un banco modular con losetas, puertas, cámaras, guardias, ventilación y eventos."},"bank-builder");
-    status.textContent="No pude consultar la API de GitHub; muestro el acceso de emergencia a las herramientas conocidas.";
+    addCard({title:"Simulador de atracos",status:"s1 experimental",description:"Partidas reproducibles de cuatro jugadores y comparación de estrategias."},"simulator");
+    addCard({title:"Replay",status:"s1",description:"Mapa adaptable, inventario, decisiones y tiradas sin desplazar la página."},"game-replay");
+    status.textContent="Herramientas locales disponibles sin consultar GitHub.";
   }
 }
 load();
