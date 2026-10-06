@@ -1,0 +1,451 @@
+{
+  "title": "Demo técnica · Replay paso a paso",
+  "snapshot": {
+    "schema": "superheist-replay-snapshot",
+    "version": "0.5",
+    "board": {
+      "rows": 9,
+      "cols": 9,
+      "receptionKey": "4,4",
+      "carKey": "4,3"
+    },
+    "objective": {
+      "name": "BANK CLEARING",
+      "text": "Depositar 6 de botín y subir al menos media banda.",
+      "lootTarget": 6
+    },
+    "sherlock": {
+      "initial": 6,
+      "remaining": 6
+    },
+    "rooms": [
+      {
+        "key": "4,4",
+        "row": 4,
+        "col": 4,
+        "x": 0,
+        "y": 0,
+        "tileId": "reception",
+        "name": "Recepción",
+        "deck": "special",
+        "color": "#4967d9",
+        "rot": 0,
+        "exits": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ],
+        "icons": [
+          [
+            "camera",
+            78,
+            23
+          ],
+          [
+            "guard",
+            25,
+            72
+          ]
+        ]
+      },
+      {
+        "key": "3,4",
+        "row": 3,
+        "col": 4,
+        "x": 0,
+        "y": 1,
+        "tileId": "corridor-i",
+        "name": "Pasillo",
+        "deck": "bank",
+        "color": "#39435b",
+        "rot": 0,
+        "exits": [
+          "N",
+          "S"
+        ],
+        "icons": []
+      },
+      {
+        "key": "2,4",
+        "row": 2,
+        "col": 4,
+        "x": 0,
+        "y": 2,
+        "tileId": "security",
+        "name": "Seguridad",
+        "deck": "bank",
+        "color": "#485777",
+        "rot": 0,
+        "exits": [
+          "S",
+          "E"
+        ],
+        "icons": [
+          [
+            "camera",
+            72,
+            25
+          ],
+          [
+            "guard",
+            28,
+            68
+          ]
+        ]
+      },
+      {
+        "key": "2,5",
+        "row": 2,
+        "col": 5,
+        "x": 1,
+        "y": 2,
+        "tileId": "deposit-boxes",
+        "name": "Cajas seg.",
+        "deck": "vault",
+        "color": "#806a45",
+        "rot": 0,
+        "exits": [
+          "E",
+          "W"
+        ],
+        "icons": [
+          [
+            "event",
+            30,
+            70
+          ],
+          [
+            "vent",
+            50,
+            27
+          ]
+        ]
+      },
+      {
+        "key": "2,6",
+        "row": 2,
+        "col": 6,
+        "x": 2,
+        "y": 2,
+        "tileId": "vault",
+        "name": "BÓVEDA",
+        "deck": "vault",
+        "color": "#8b6632",
+        "rot": 90,
+        "exits": [
+          "W"
+        ],
+        "icons": [
+          [
+            "loot",
+            50,
+            52
+          ],
+          [
+            "camera",
+            75,
+            25
+          ],
+          [
+            "event",
+            25,
+            72
+          ]
+        ]
+      }
+    ],
+    "patrols": [
+      {
+        "id": 1,
+        "color": "#ff667d",
+        "colorName": "Rojo",
+        "post": "4,4",
+        "nodes": [
+          "3,4",
+          "2,4"
+        ],
+        "kind": "chain",
+        "guardCard": {
+          "name": "Guardia novato"
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "J1",
+        "index": 1,
+        "color": "#5dc9ff",
+        "colorName": "Celeste",
+        "character": {
+          "name": "Técnica"
+        },
+        "power": {
+          "name": "Pulso eléctrico"
+        },
+        "failure": {
+          "name": "Fiable"
+        },
+        "objective": {
+          "name": "Profesional"
+        },
+        "items": [],
+        "start": "outside"
+      },
+      {
+        "id": "J2",
+        "index": 2,
+        "color": "#ffd166",
+        "colorName": "Amarillo",
+        "character": {
+          "name": "Estafador"
+        },
+        "power": {
+          "name": "Precognición"
+        },
+        "failure": {
+          "name": "Muy fiable"
+        },
+        "objective": {
+          "name": "Codicia"
+        },
+        "items": [],
+        "start": "outside"
+      }
+    ],
+    "swats": [],
+    "events": [
+      {
+        "id": "E:2,5:1",
+        "roomKey": "2,5",
+        "room": "Cajas seg.",
+        "slot": 1,
+        "card": {
+          "name": "Cámara oculta",
+          "category": "obstáculo",
+          "text": "Aparece una cámara no detectada."
+        }
+      }
+    ],
+    "loot": [
+      {
+        "id": "L1",
+        "roomKey": "2,6",
+        "room": "BÓVEDA",
+        "value": 4,
+        "revealed": false
+      }
+    ],
+    "initialState": {
+      "alert": 0,
+      "sherlock": 6,
+      "depositedLoot": 0,
+      "players": {
+        "J1": {
+          "position": "outside",
+          "status": "active",
+          "carryingLoot": 0,
+          "boarded": false
+        },
+        "J2": {
+          "position": "outside",
+          "status": "active",
+          "carryingLoot": 0,
+          "boarded": false
+        }
+      },
+      "guards": {
+        "G1": {
+          "position": "4,4",
+          "status": "active"
+        }
+      },
+      "swats": {},
+      "revealedEvents": [],
+      "revealedLoot": []
+    }
+  },
+  "story": {
+    "steps": [
+      {
+        "phase": "Planificación",
+        "title": "El plan",
+        "narration": "La banda decide entrar por Recepción y avanzar hacia la zona segura. Esta demo sólo muestra cómo funciona el reproductor; las futuras partidas usarán el snapshot exacto generado por el constructor.",
+        "focus": [
+          "room:4,4"
+        ],
+        "focusCard": {
+          "title": "Objetivo",
+          "text": "Llegar a la bóveda, descubrir el valor real del botín y volver al auto."
+        },
+        "dialogue": [
+          {
+            "speaker": "J1",
+            "text": "Entramos cuando el guardia se aleje."
+          },
+          {
+            "speaker": "J2",
+            "text": "Y si algo sale mal, improvisamos."
+          }
+        ],
+        "actions": []
+      },
+      {
+        "phase": "Ronda 1",
+        "title": "Entrada",
+        "narration": "Los dos personajes entran a Recepción. El guardia empieza su ronda hacia el pasillo.",
+        "focus": [
+          "player:J1",
+          "player:J2",
+          "guard:1"
+        ],
+        "dialogue": [
+          {
+            "speaker": "J1",
+            "text": "Ahora."
+          }
+        ],
+        "actions": [
+          {
+            "op": "move",
+            "id": "J1",
+            "from": "4,3",
+            "to": "4,4",
+            "label": "J1 entra a Recepción"
+          },
+          {
+            "op": "move",
+            "id": "J2",
+            "from": "4,3",
+            "to": "4,4",
+            "label": "J2 entra a Recepción"
+          },
+          {
+            "op": "moveGuard",
+            "id": 1,
+            "from": "4,4",
+            "to": "3,4",
+            "label": "G1 patrulla hacia Pasillo"
+          }
+        ]
+      },
+      {
+        "phase": "Ronda 2",
+        "title": "Cruzan detrás del guardia",
+        "narration": "Aprovechan la ventana de patrulla y avanzan.",
+        "focus": [
+          "room:3,4"
+        ],
+        "actions": [
+          {
+            "op": "move",
+            "id": "J1",
+            "from": "4,4",
+            "to": "3,4"
+          },
+          {
+            "op": "move",
+            "id": "J2",
+            "from": "4,4",
+            "to": "3,4"
+          },
+          {
+            "op": "moveGuard",
+            "id": 1,
+            "from": "3,4",
+            "to": "2,4"
+          }
+        ]
+      },
+      {
+        "phase": "Ronda 3",
+        "title": "Evento oculto",
+        "narration": "Al acceder a Cajas de Seguridad revelan una carta que no habían investigado.",
+        "focus": [
+          "event:E:2,5:1",
+          "room:2,5"
+        ],
+        "focusCard": {
+          "title": "Cámara oculta",
+          "text": "Aparece una cámara adicional en la habitación."
+        },
+        "dialogue": [
+          {
+            "speaker": "J2",
+            "text": "Ah. Eso no estaba en el folleto."
+          }
+        ],
+        "actions": [
+          {
+            "op": "move",
+            "id": "J1",
+            "from": "3,4",
+            "to": "2,5"
+          },
+          {
+            "op": "move",
+            "id": "J2",
+            "from": "3,4",
+            "to": "2,5"
+          },
+          {
+            "op": "revealEvent",
+            "id": "E:2,5:1"
+          }
+        ]
+      },
+      {
+        "phase": "Ronda 4",
+        "title": "La bóveda",
+        "narration": "J1 entra primero. El token de botín sigue oculto hasta que acceden.",
+        "focus": [
+          "loot:L1",
+          "player:J1"
+        ],
+        "actions": [
+          {
+            "op": "move",
+            "id": "J1",
+            "from": "2,5",
+            "to": "2,6"
+          },
+          {
+            "op": "revealLoot",
+            "id": "L1"
+          }
+        ],
+        "focusCard": {
+          "title": "◆ Botín revelado",
+          "text": "Valor real: 4 unidades."
+        }
+      },
+      {
+        "phase": "Ronda 5",
+        "title": "Retirada",
+        "narration": "J1 toma el botín y ambos empiezan a volver. En una partida real, los pasos siguientes continuarían hasta depositar el botín y subir al auto.",
+        "focus": [
+          "player:J1"
+        ],
+        "dialogue": [
+          {
+            "speaker": "J1",
+            "text": "Cuatro. Con otra caja chica nos alcanza."
+          }
+        ],
+        "actions": [
+          {
+            "op": "carry",
+            "id": "J1",
+            "amount": 4
+          },
+          {
+            "op": "move",
+            "id": "J1",
+            "from": "2,6",
+            "to": "2,5"
+          }
+        ]
+      }
+    ]
+  }
+}
