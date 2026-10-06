@@ -1,4 +1,4 @@
-SUPERHEIST / SUPERATRACO — REGLAS DE PROTOTIPO v0.4
+SUPERHEIST / SUPERATRACO — REGLAS DE PROTOTIPO v0.6
 =====================================================
 
 ESTADO
@@ -6,7 +6,7 @@ Documento vivo de diseño. Estas reglas priorizan velocidad, planificación, inf
 
 1. OBJETIVO — BANK CLEARING
 ----------------------------
-El banco contiene varios puntos de botín con tokens boca abajo.
+El banco contiene varias BÓVEDAS reales con tokens de botín boca abajo. El generador automático usa actualmente 2 BÓVEDAS en banco chico, 3 en banco mediano y 4 en banco grande.
 El setup SIEMPRE debe colocar suficiente botín base dentro del banco para que sea matemáticamente posible ganar sin depender de eventos aleatorios.
 
 Objetivo grupal actual:
@@ -140,8 +140,9 @@ Entrar, desplazarse y salir consume acciones según la situación/poder. Los duc
 
 10. BOTÍN
 ---------
-Los puntos de botín seguro reciben tokens boca abajo con valores pequeños/grandes.
-El valor NO se conoce hasta acceder a ese punto.
+Cada BÓVEDA real recibe un token de botín boca abajo con valor aleatorio entre 1 y 4.
+El valor NO se conoce hasta acceder a esa BÓVEDA.
+El generador reparte los valores de modo que la suma total del botín base nunca sea inferior al mínimo requerido para ganar.
 
 La herramienta distribuye valores aleatorios y garantiza que la suma del botín base sea al menos 6.
 
