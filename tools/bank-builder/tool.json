@@ -1,6 +1,6 @@
 {
   "title": "Constructor de Banco + Preparador",
-  "status": "v0.3",
-  "description": "Genera el banco y las patrullas, reparte personajes, poderes, fiabilidad, objetivos, guardias, SWAT y eventos, y exporta un setup completo para simular la partida.",
+  "status": "v0.4",
+  "description": "Genera banco, patrullas, botín oculto garantizado, personajes y enemigos; permite comprar Equipo secreto aleatorio con SHERLOCK, intercambiarlo y exportar una partida con extracción al auto.",
   "order": 1
 }
