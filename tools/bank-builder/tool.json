@@ -1,6 +1,6 @@
 {
   "title": "Constructor de Banco + Preparador",
-  "status": "v0.5",
-  "description": "Genera banco, patrullas, botín oculto, Equipo y setup completo; además exporta un snapshot JSON exacto para reconstruir partidas en el Replay.",
+  "status": "v0.6",
+  "description": "Genera bancos con múltiples BÓVEDAS reales, botín oculto garantizado, patrullas, Equipo, setup completo y snapshot exacto para Replay.",
   "order": 1
 }
