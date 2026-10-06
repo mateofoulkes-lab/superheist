@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Superheist · Simulador</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #0b1020;
+        color: #eaf0ff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 1000px;
+        margin: 36px auto;
+        padding: 0 24px;
+      }
+      a {
+        color: #a7baff;
+      }
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+        margin: 20px 0 8px;
+      }
+      .sub {
+        color: #acb8d0;
+        line-height: 1.6;
+        max-width: 780px;
+      }
+      .panel {
+        border: 1px solid #344260;
+        background: #131e32;
+        padding: 22px;
+        border-radius: 16px;
+        margin: 20px 0;
+      }
+      .controls {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: end;
+      }
+      label {
+        display: grid;
+        gap: 7px;
+        font-size: 14px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        border: 1px solid #53637e;
+        border-radius: 8px;
+        padding: 11px;
+        background: #182841;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button.primary {
+        background: #496af0;
+        border-color: #6f8aff;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      .results {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .metric {
+        padding: 16px;
+        background: #0c1425;
+        border-radius: 10px;
+      }
+      .metric strong {
+        font-size: 26px;
+        display: block;
+      }
+      .metric span {
+        color: #b1bdd5;
+        font-size: 13px;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .note {
+        font-size: 13px;
+        color: #bac5dc;
+        line-height: 1.5;
+      }
+      .status {
+        min-height: 24px;
+        color: #b9ccff;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      td,
+      th {
+        text-align: left;
+        padding: 9px;
+        border-bottom: 1px solid #344260;
+      }
+      details {
+        margin-top: 18px;
+      }
+      pre {
+        white-space: pre-wrap;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #ffdc8a;
+        outline-offset: 3px;
+      }
+      @media (max-width: 650px) {
+        main {
+          padding: 0 16px;
+        }
+        .results {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a href="../../">← Herramientas</a> · <a href="../game-replay/">Replay</a>
+      <h1>Un atraco. Cada decisión visible.</h1>
+      <p class="sub">
+        Primer laboratorio de Superheist: cuatro jugadores, tres bóvedas y dos
+        patrullas. Repetí una partida con la misma semilla, inspeccioná sus
+        decisiones y compará estrategias.
+      </p>
+      <section class="panel">
+        <div class="controls">
+          <label
+            >Semilla<input
+              id="seed"
+              value="primer-atraco"
+              maxlength="80" /></label
+          ><label
+            >Comportamientos<select id="profile">
+              <option value="cooperative">Cooperación y cautela</option>
+              <option value="conflict">Cooperación, codicia y sabotaje</option>
+            </select></label
+          ><button class="primary" id="run">Simular partida</button
+          ><button id="batch">Comparar 100 partidas</button>
+        </div>
+        <p class="status" id="status" role="status">
+          Sin Fiabilidad · Inventario de manos y mochila · Empujar · Patrullas
+          con flecha
+        </p>
+      </section>
+      <section class="panel" id="result" hidden>
+        <h2 id="title"></h2>
+        <div class="results" id="metrics"></div>
+        <div class="actions">
+          <button id="replay" class="primary">Ver partida en Replay →</button
+          ><button id="download">Descargar partida</button>
+        </div>
+        <p id="personal" class="note"></p>
+      </section>
+      <section class="panel" id="batchResult" hidden>
+        <h2>Resultados del lote</h2>
+        <div id="batchMetrics"></div>
+        <p class="note">
+          Mismas 50 semillas en ambos perfiles. Una diferencia describe estas
+          políticas simples en este escenario: no demuestra balance ni
+          negociación humana. Podés reproducir cualquier caso usando su semilla
+          y perfil.
+        </p>
+        <details>
+          <summary>Semillas y resultados individuales</summary>
+          <pre id="cases"></pre>
+        </details>
+      </section>
+      <section class="panel">
+        <b>Reglas experimentales s1</b>
+        <p class="note">
+          Los agentes sólo conocen la información pública y sus propias cartas.
+          El Replay es omnisciente para poder auditar. Este escenario usa un
+          subconjunto de poderes y Equipo; todavía no importa bancos del
+          constructor ni simula 2–8 jugadores.
+        </p>
+        <details>
+          <summary>Qué está implementado y qué falta</summary>
+          <p class="note">
+            Implementado: preparación aleatoria reproducible, investigación,
+            puertas, botín, cámaras, eventos, patrullas, combate, reducción,
+            arresto, rescate, empujones, inventario, SWAT, extracción y
+            objetivos. Pendiente: negociación, Labia, ductos, todos los rasgos y
+            cartas históricos, mapas variables y escalado. Las reglas completas
+            del experimento se encuentran en
+            <a href="../../docs/REGLAS-SIMULADOR.md">Reglas del simulador</a>.
+          </p>
+        </details>
+      </section>
+    </main>
+    <script src="engine.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

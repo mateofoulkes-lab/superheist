@@ -1,7 +1,22 @@
 [
   {
+    "id": "primer-atraco",
+    "title": "Atraco automático · 4 jugadores · s1",
+    "file": "examples/primer-atraco.json"
+  },
+  {
+    "id": "escape",
+    "title": "Escape automático · Botín y SWAT",
+    "file": "examples/escape.json"
+  },
+  {
+    "id": "conflicto",
+    "title": "Conflicto automático · Empujar y objetivos",
+    "file": "examples/conflicto.json"
+  },
+  {
     "id": "demo-interfaz",
-    "title": "Demo técnica · Replay paso a paso",
+    "title": "Demo histórica · no valida reglas",
     "file": "examples/demo-interfaz.json"
   }
 ]

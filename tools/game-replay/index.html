@@ -1,240 +1,111 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SuperHeist · Ejemplos de partida</title>
-<style>
-:root{font-family:Inter,system-ui,sans-serif;color:#eef2ff;background:#0b0e19;--panel:#141a2c;--line:#303955;--accent:#7b8cff;--gold:#ffd166;--ok:#5ad89b;--bad:#ff7185}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 30% 0,#1d2753 0,transparent 32%),#0b0e19}
-button,select{font:inherit;color:#fff;background:#29304c;border:0;border-radius:10px;padding:10px 12px;font-weight:800}button{cursor:pointer}button:hover{filter:brightness(1.12)}button:disabled{opacity:.35;cursor:not-allowed}button.primary{background:#6275ff}
-header{position:sticky;top:0;z-index:20;background:#0f1425eF;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
-.header-inner{width:min(1500px,96vw);margin:auto;padding:14px 0;display:flex;gap:14px;align-items:center;justify-content:space-between}.header-inner a{color:#b7c0ff;text-decoration:none}.title{font-weight:950}.tag{font-size:.76rem;color:#a7b0cf}
-main{width:min(1500px,96vw);margin:18px auto 60px}.toolbar{display:grid;grid-template-columns:minmax(240px,1fr) auto auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:14px}.buttons{display:flex;gap:8px}.step-counter{font-variant-numeric:tabular-nums;color:#bdc5df;text-align:right}
-.layout{display:grid;grid-template-columns:minmax(760px,1fr) 330px;gap:14px;align-items:start}.board-shell{background:#0e1323;border:1px solid var(--line);border-radius:18px;padding:14px;overflow:auto}.board-wrap{width:810px;height:810px;margin:auto;position:relative}.board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(9,90px);grid-template-rows:repeat(9,90px);background:#080b14;border:2px solid #343b58;box-shadow:0 18px 60px #0009}.cell{position:relative;border:1px solid #151b2c;overflow:visible}.cell.empty{background:#090c16}.cell.focus{box-shadow:inset 0 0 0 4px var(--gold),0 0 18px #ffd16688;z-index:5}.cell svg{display:block;width:100%;height:100%}
-.token-layer{position:absolute;inset:4px;display:flex;align-items:flex-start;justify-content:flex-start;gap:3px;flex-wrap:wrap;pointer-events:none;z-index:8}.token{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:950;color:#090b12;border:2px solid #fff;box-shadow:0 2px 5px #000b}.token.guard{border-radius:7px}.token.swat{clip-path:polygon(50% 0,100% 30%,82% 100%,18% 100%,0 30%)}.token.focus{outline:4px solid var(--gold);outline-offset:2px;transform:scale(1.12)}
-.marker{position:absolute;z-index:6;font-weight:950;font-size:11px;border:2px solid #fff;border-radius:7px;padding:2px 4px;background:#191f33}.marker.loot{left:4px;bottom:4px;color:var(--gold);border-color:var(--gold)}.marker.event{right:4px;top:4px;color:#f7bcff;border-color:#e08cf4}.marker.revealed{background:#38405b}.car{background:#131a2f;border:2px dashed #8293be!important;display:grid;place-items:center;text-align:center;color:#dbe4ff;font-weight:900}.car .emoji{font-size:28px}
-.move-overlay{position:absolute;inset:0;width:810px;height:810px;z-index:12;pointer-events:none;overflow:visible}.move-line{stroke:#fff;stroke-width:5;opacity:.9;filter:drop-shadow(0 0 5px #000)}.move-dot{fill:#fff}
-.side{display:grid;gap:12px;position:sticky;top:82px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px}.panel h2,.panel h3{margin:0 0 9px}.kv{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:.9rem;padding:4px 0;border-bottom:1px solid #242b42}.kv:last-child{border:0}.alert{font-size:1.15rem;font-weight:950}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{background:#202844;border:1px solid #354064;border-radius:999px;padding:5px 8px;font-size:.76rem}.focus-card{border:1px solid #7d6a34;background:#272116;border-radius:12px;padding:10px;min-height:72px}.focus-card.empty{border-color:#303955;background:#101525;color:#7f88a8}
-.staging{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.stage{background:#0d1221;border:1px dashed #343d5a;border-radius:12px;padding:9px;min-height:66px}.stage-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#8992b4;margin-bottom:6px}.stage-tokens{display:flex;gap:5px;flex-wrap:wrap}
-.story{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.phase{color:#98a4ff;text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;font-weight:900}.story h1{font-size:1.45rem;margin:.25rem 0 .7rem}.narration{color:#d4d9ea;line-height:1.55;white-space:pre-wrap}.dialogue{display:grid;gap:8px;margin-top:14px}.line{background:#0d1221;border-left:4px solid #59658e;border-radius:10px;padding:9px 11px}.speaker{font-weight:950;margin-right:5px}.moves{margin-top:14px;padding-top:12px;border-top:1px solid #2a314a;display:flex;gap:7px;flex-wrap:wrap}.move-chip{border-radius:999px;background:#252e4d;padding:6px 9px;font-size:.8rem}
-.empty-message{padding:60px 20px;text-align:center;color:#9aa4c5}.help{margin-top:14px;color:#8992b4;font-size:.83rem}
-@media(max-width:1160px){.layout{grid-template-columns:1fr}.side{position:static;grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:1fr}.step-counter{text-align:left}}@media(max-width:720px){.side{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<header><div class="header-inner"><a href="../../">← Toolbox</a><div class="title">SuperHeist · Ejemplos de partida / Replay</div><div class="tag">v0.1</div></div></header>
-<main>
-  <section class="toolbar">
-    <select id="exampleSelect" aria-label="Ejemplo de partida"></select>
-    <div class="buttons">
-      <button id="prevBtn" onclick="go(-1)">← Paso</button>
-      <button class="primary" id="nextBtn" onclick="go(1)">Paso →</button>
-      <button onclick="restart()">↺ Inicio</button>
-    </div>
-    <div id="stepCounter" class="step-counter">—</div>
-  </section>
-
-  <div id="empty" class="empty-message" hidden>No hay ejemplos cargados todavía.</div>
-
-  <div id="replayUI">
-    <div class="layout">
-      <section class="board-shell">
-        <div class="board-wrap">
-          <div id="board" class="board"></div>
-          <svg id="moveOverlay" class="move-overlay" viewBox="0 0 810 810">
-            <defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#fff"/></marker></defs>
-            <g id="moveLines"></g>
-          </svg>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Superheist · Replay</title>
+    <link rel="stylesheet" href="replay.css" />
+  </head>
+  <body>
+    <header>
+      <a href="../../">← Herramientas</a
+      ><strong>SUPERHEIST <span>REPLAY</span></strong
+      ><a href="../simulator/">Simular otro atraco →</a>
+    </header>
+    <main>
+      <section class="toolbar" aria-label="Controles del Replay">
+        <div class="source">
+          <select id="exampleSelect" aria-label="Partida"></select
+          ><label class="file-button"
+            >Importar JSON<input
+              id="importFile"
+              type="file"
+              accept=".json,application/json" /></label
+          ><button id="download" title="Descargar partida">Descargar</button>
         </div>
-        <div class="staging">
-          <div class="stage"><div class="stage-title">Fuera del banco</div><div id="outsideTokens" class="stage-tokens"></div></div>
-          <div class="stage"><div class="stage-title">Fuera de juego / arrestados</div><div id="offTokens" class="stage-tokens"></div></div>
+        <div class="navigation">
+          <button onclick="restart()" title="Volver al principio">↺</button
+          ><button onclick="jumpRound(-1)" title="Ronda anterior">
+            − Ronda</button
+          ><button id="prevBtn" onclick="go(-1)" aria-label="Paso anterior">
+            ←</button
+          ><input
+            id="stepSlider"
+            type="range"
+            min="0"
+            max="0"
+            value="0"
+            aria-label="Paso de la partida"
+          /><button id="nextBtn" onclick="go(1)" aria-label="Paso siguiente">
+            →</button
+          ><button onclick="jumpRound(1)" title="Ronda siguiente">
+            + Ronda</button
+          ><span id="stepCounter">—</span>
         </div>
       </section>
-
-      <aside class="side">
-        <section class="panel"><h3>Estado</h3><div id="statePanel"></div></section>
-        <section class="panel"><h3>Objeto en foco</h3><div id="focusCard" class="focus-card empty">Este paso no destaca una carta u objeto.</div></section>
-        <section class="panel"><h3>Personajes</h3><div id="playersPanel" class="chips"></div></section>
-        <section class="panel"><h3>Leyenda</h3><div class="help">Círculo = jugador · cuadrado redondeado = guardia · pentágono = SWAT · ◆ = botín · ? = evento. El borde dorado indica qué elemento importa en este paso.</div></section>
-      </aside>
-    </div>
-
-    <section class="story">
-      <div id="phase" class="phase"></div>
-      <h1 id="stepTitle"></h1>
-      <div id="narration" class="narration"></div>
-      <div id="dialogue" class="dialogue"></div>
-      <div id="moves" class="moves"></div>
-    </section>
-  </div>
-</main>
-
-<script>
-let manifest=[],example=null,stepIndex=0,currentState=null;
-
-const board=document.querySelector("#board");
-for(let r=0;r<9;r++)for(let c=0;c<9;c++){const d=document.createElement("div");d.className="cell empty";d.dataset.key=r+","+c;board.append(d)}
-
-function clone(x){return JSON.parse(JSON.stringify(x))}
-function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
-function parseKey(k){return String(k).split(",").map(Number)}
-function cellFor(k){const [r,c]=parseKey(k);return board.children[r*9+c]}
-function centerFor(k){const [r,c]=parseKey(k);return {x:c*90+45,y:r*90+45}}
-
-function wall(side,door){
- const gap1=38,gap2=62,parts=door?[[0,gap1],[gap2,100]]:[[0,100]];
- return parts.map(([a,b])=>{
-  if(side==="N"||side==="S"){const y=side==="N"?1:99;return `<line x1="${a}" y1="${y}" x2="${b}" y2="${y}"/>`}
-  const x=side==="W"?1:99;return `<line x1="${x}" y1="${a}" x2="${x}" y2="${b}"/>`
- }).join("");
-}
-function roomSvg(room){
- const S=["N","E","S","W"],icons=(room.icons||[]).map(i=>{
-  const [t,x,y]=i;
-  if(t==="camera")return `<text x="${x}" y="${y+5}" text-anchor="middle" font-size="14" fill="#dbe6ff">◉</text>`;
-  if(t==="guard")return `<text x="${x}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">G</text>`;
-  if(t==="vent")return `<text x="${x}" y="${y+5}" text-anchor="middle" font-size="14" fill="#dbe6ff">▦</text>`;
-  if(t==="event")return "";
-  if(t==="loot")return "";
-  return "";
- }).join("");
- return `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="${room.color||"#3b455d"}"/><g stroke="#edf2ff" stroke-width="5">${S.map(s=>wall(s,(room.exits||[]).includes(s))).join("")}</g><text x="50" y="52" text-anchor="middle" font-size="${room.name.length>12?7:9}" font-weight="900" fill="#fff">${esc(room.name)}</text>${icons}</svg>`;
-}
-
-function tokenHTML(id,kind,color,label,focus=false){
- return `<div class="token ${kind} ${focus?"focus":""}" data-token="${id}" style="background:${color||"#ddd"}" title="${esc(label)}">${esc(id)}</div>`;
-}
-
-function initState(){
- currentState=clone(example.snapshot.initialState||{});
- currentState.alert??=0;currentState.sherlock??=example.snapshot.sherlock?.remaining??0;currentState.depositedLoot??=0;
- currentState.players??={};currentState.guards??={};currentState.swats??={};currentState.revealedEvents??=[];currentState.revealedLoot??=[];
-}
-function applyAction(a){
- if(!a)return;
- if(a.op==="move"&&currentState.players[a.id])currentState.players[a.id].position=a.to;
- if(a.op==="moveGuard"&&currentState.guards["G"+a.id])currentState.guards["G"+a.id].position=a.to;
- if(a.op==="moveSwat"&&currentState.swats["S"+a.id]){currentState.swats["S"+a.id].position=a.to;currentState.swats["S"+a.id].status="active"}
- if(a.op==="removeGuard"&&currentState.guards["G"+a.id])currentState.guards["G"+a.id].status="removed";
- if(a.op==="alert")currentState.alert=a.value;
- if(a.op==="sherlock")currentState.sherlock=Math.max(0,(currentState.sherlock||0)+(a.delta||0));
- if(a.op==="revealEvent"&&!currentState.revealedEvents.includes(a.id))currentState.revealedEvents.push(a.id);
- if(a.op==="revealLoot"&&!currentState.revealedLoot.includes(a.id))currentState.revealedLoot.push(a.id);
- if(a.op==="carry"&&currentState.players[a.id])currentState.players[a.id].carryingLoot=a.amount;
- if(a.op==="deposit"&&currentState.players[a.id]){const amt=a.amount??currentState.players[a.id].carryingLoot??0;currentState.depositedLoot+=amt;currentState.players[a.id].carryingLoot=Math.max(0,(currentState.players[a.id].carryingLoot||0)-amt)}
- if(a.op==="board"&&currentState.players[a.id]){currentState.players[a.id].position=example.snapshot.board.carKey;currentState.players[a.id].boarded=true}
- if(a.op==="status"&&currentState.players[a.id]){currentState.players[a.id].status=a.status;if(a.position)currentState.players[a.id].position=a.position}
-}
-function computeState(toStep){
- initState();
- for(let i=0;i<=toStep;i++)for(const a of example.story.steps[i]?.actions||[])applyAction(a);
-}
-
-function currentStep(){return example?.story?.steps?.[stepIndex]||null}
-function isFocused(ref){
- const f=currentStep()?.focus||[];return f.includes(ref);
-}
-function focusRoomKeys(){
- const out=new Set(),st=currentStep();if(!st)return out;
- for(const ref of st.focus||[]){
-  if(ref.startsWith("room:"))out.add(ref.slice(5));
-  if(ref.startsWith("event:")){const e=example.snapshot.events?.find(x=>x.id===ref.slice(6));if(e)out.add(e.roomKey)}
-  if(ref.startsWith("loot:")){const l=example.snapshot.loot?.find(x=>x.id===ref.slice(5));if(l)out.add(l.roomKey)}
-  if(ref==="car")out.add(example.snapshot.board.carKey);
- }
- for(const a of st.actions||[]){if(a.to&&/^\d+,\d+$/.test(a.to))out.add(a.to)}
- return out;
-}
-function renderBoard(){
- const focusRooms=focusRoomKeys();
- document.querySelectorAll(".cell").forEach(c=>{c.className="cell empty";c.innerHTML=""});
- for(const room of example.snapshot.rooms||[]){
-  const cell=cellFor(room.key);cell.className="cell";cell.innerHTML=roomSvg(room);
-  if(focusRooms.has(room.key))cell.classList.add("focus");
-  const events=(example.snapshot.events||[]).filter(e=>e.roomKey===room.key);
-  if(events.length){const m=document.createElement("div");m.className="marker event"+(events.some(e=>currentState.revealedEvents.includes(e.id))?" revealed":"");m.textContent="?"+(events.length>1?"×"+events.length:"");cell.append(m)}
-  const loot=(example.snapshot.loot||[]).find(l=>l.roomKey===room.key);
-  if(loot){const m=document.createElement("div");m.className="marker loot"+(currentState.revealedLoot.includes(loot.id)?" revealed":"");m.textContent=currentState.revealedLoot.includes(loot.id)?"◆ "+loot.value:"◆ ?";cell.append(m)}
- }
- const carKey=example.snapshot.board.carKey,carCell=cellFor(carKey);if(carCell){carCell.className="cell car"+(focusRooms.has(carKey)?" focus":"");carCell.innerHTML='<div><div class="emoji">🚗</div>AUTO</div>'}
- document.querySelectorAll(".cell").forEach(c=>{const layer=document.createElement("div");layer.className="token-layer";c.append(layer)});
-
- for(const p of example.snapshot.players||[]){
-  const st=currentState.players[p.id]||{};if(!/^\d+,\d+$/.test(st.position||""))continue;
-  const cell=cellFor(st.position),layer=cell?.querySelector(".token-layer");if(layer)layer.insertAdjacentHTML("beforeend",tokenHTML(p.id,"player",p.color,p.character?.name||p.id,isFocused("player:"+p.id)));
- }
- for(const g of example.snapshot.patrols||[]){
-  const id="G"+g.id,st=currentState.guards[id]||{};if(st.status==="removed"||!/^\d+,\d+$/.test(st.position||""))continue;
-  const layer=cellFor(st.position)?.querySelector(".token-layer");if(layer)layer.insertAdjacentHTML("beforeend",tokenHTML(id,"guard",g.color,g.guardCard?.name||id,isFocused("guard:"+g.id)));
- }
- for(const s of example.snapshot.swats||[]){
-  const st=currentState.swats[s.id]||{};if(st.status!=="active"||!/^\d+,\d+$/.test(st.position||""))continue;
-  const layer=cellFor(st.position)?.querySelector(".token-layer");if(layer)layer.insertAdjacentHTML("beforeend",tokenHTML(s.id,"swat",s.color,s.card?.name||s.id,isFocused("swat:"+s.id)));
- }
- renderStaging();renderMoveOverlay();
-}
-function renderStaging(){
- const outside=document.querySelector("#outsideTokens"),off=document.querySelector("#offTokens");outside.innerHTML="";off.innerHTML="";
- for(const p of example.snapshot.players||[]){const st=currentState.players[p.id]||{};const h=tokenHTML(p.id,"player",p.color,p.character?.name||p.id,isFocused("player:"+p.id));if(st.position==="outside")outside.insertAdjacentHTML("beforeend",h);if(["arrested","escaped","dead","leftbehind"].includes(st.status)||st.position==="escaped")off.insertAdjacentHTML("beforeend",h)}
-}
-function renderMoveOverlay(){
- const g=document.querySelector("#moveLines");g.innerHTML="";
- for(const a of currentStep()?.actions||[]){
-  let from=a.from,to=a.to;
-  if(!from&&a.op==="move")from=null;
-  if(!from||!to||!/^\d+,\d+$/.test(from)||!/^\d+,\d+$/.test(to))continue;
-  const A=centerFor(from),B=centerFor(to);
-  g.insertAdjacentHTML("beforeend",`<line class="move-line" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" marker-end="url(#arrow)"/><circle class="move-dot" cx="${A.x}" cy="${A.y}" r="5"/>`);
- }
-}
-function describeAlert(v){return ["Normal","Sospecha","Alerta","LOCKDOWN","SWAT LLAMADO"][v]||"Alerta "+v}
-function renderPanels(){
- document.querySelector("#statePanel").innerHTML=`<div class="kv"><span>Alerta</span><b class="alert">${currentState.alert} · ${describeAlert(currentState.alert)}</b></div><div class="kv"><span>SHERLOCK</span><b>${currentState.sherlock}</b></div><div class="kv"><span>Botín depositado</span><b>${currentState.depositedLoot} / ${example.snapshot.objective?.lootTarget||6}</b></div>`;
- document.querySelector("#playersPanel").innerHTML=(example.snapshot.players||[]).map(p=>{const st=currentState.players[p.id]||{};return `<span class="chip"><b>${p.id}</b> · ${esc(p.character?.name||"")} · ${esc(st.position||"?")}${st.carryingLoot?" · ◆"+st.carryingLoot:""}</span>`}).join("");
- const fc=currentStep()?.focusCard,box=document.querySelector("#focusCard");
- if(fc){box.className="focus-card";box.innerHTML=`<b>${esc(fc.title)}</b><br><span style="color:#c5cbe0">${esc(fc.text||"")}</span>`}else{box.className="focus-card empty";box.textContent="Este paso no destaca una carta u objeto."}
-}
-function renderStory(){
- const st=currentStep();document.querySelector("#phase").textContent=st?.phase||"";document.querySelector("#stepTitle").textContent=st?.title||"Inicio";document.querySelector("#narration").textContent=st?.narration||"";
- document.querySelector("#dialogue").innerHTML=(st?.dialogue||[]).map(d=>`<div class="line"><span class="speaker">${esc(d.speaker)}:</span> ${esc(d.text)}</div>`).join("");
- const moves=(st?.actions||[]).filter(a=>["move","moveGuard","moveSwat","board","deposit","revealEvent","revealLoot","alert"].includes(a.op));
- document.querySelector("#moves").innerHTML=moves.map(a=>`<span class="move-chip">${esc(a.label||actionLabel(a))}</span>`).join("");
-}
-function actionLabel(a){
- if(a.op==="move")return `${a.id}: ${a.from||"fuera"} → ${a.to}`;
- if(a.op==="moveGuard")return `G${a.id} → ${a.to}`;
- if(a.op==="moveSwat")return `SWAT ${a.id} → ${a.to}`;
- if(a.op==="board")return `${a.id} sube al auto`;
- if(a.op==="deposit")return `${a.id} deposita ◆${a.amount??""}`;
- if(a.op==="revealEvent")return "Se revela un evento";
- if(a.op==="revealLoot")return "Se revela botín";
- if(a.op==="alert")return "Alerta → "+a.value;
- return a.op;
-}
-function render(){
- if(!example)return;computeState(stepIndex);renderBoard();renderPanels();renderStory();
- const total=example.story.steps.length;document.querySelector("#stepCounter").textContent=`Paso ${stepIndex+1} / ${total}`;document.querySelector("#prevBtn").disabled=stepIndex<=0;document.querySelector("#nextBtn").disabled=stepIndex>=total-1;
-}
-function go(delta){if(!example)return;stepIndex=Math.max(0,Math.min(example.story.steps.length-1,stepIndex+delta));render()}
-function restart(){stepIndex=0;render()}
-
-async function loadExample(file){
- const r=await fetch(file);if(!r.ok)throw new Error("No se pudo cargar "+file);example=await r.json();stepIndex=0;document.querySelector("#replayUI").hidden=false;document.querySelector("#empty").hidden=true;render();
-}
-async function init(){
- try{
-  const r=await fetch("examples.json");manifest=r.ok?await r.json():[];
-  const select=document.querySelector("#exampleSelect");
-  if(!manifest.length){select.innerHTML='<option>Sin ejemplos</option>';document.querySelector("#replayUI").hidden=true;document.querySelector("#empty").hidden=false;return}
-  select.innerHTML=manifest.map((x,i)=>`<option value="${i}">${esc(x.title)}</option>`).join("");
-  select.onchange=()=>loadExample(manifest[Number(select.value)].file);
-  await loadExample(manifest[0].file);
- }catch(e){document.querySelector("#replayUI").hidden=true;document.querySelector("#empty").hidden=false;document.querySelector("#empty").textContent="Error cargando ejemplos: "+e.message}
-}
-document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")go(1);if(e.key==="ArrowLeft")go(-1)});
-init();
-</script>
-</body>
+      <div id="notice" role="status"></div>
+      <div id="empty" hidden>No hay partidas.</div>
+      <div id="replayUI" class="replay-grid">
+        <section class="board-shell">
+          <div class="board-heading">
+            <b>El banco</b
+            ><span>Vista omnisciente · secretos para auditoría</span>
+          </div>
+          <div id="boardBay">
+            <div class="board-wrap">
+              <div id="board" class="board"></div>
+              <svg id="moveOverlay" class="move-overlay" viewBox="0 0 900 900">
+                <defs>
+                  <marker
+                    id="arrow"
+                    markerWidth="9"
+                    markerHeight="9"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <path d="M0,0 L0,6 L8,3 z" fill="#ffdb87" />
+                  </marker>
+                </defs>
+                <g id="moveLines"></g>
+              </svg>
+            </div>
+          </div>
+          <div class="legend">
+            ● Jugador · ▣ Guardia · ⬟ SWAT · ↑ Flecha extendida · • Retraída ·
+            Borde rojo: Atención · Barra roja: puerta cerrada
+          </div>
+          <div class="staging">
+            <div>
+              <b>Fuera del banco</b>
+              <div id="outsideTokens" class="stage-tokens"></div>
+            </div>
+            <div>
+              <b>Escapados / fuera de juego</b>
+              <div id="offTokens" class="stage-tokens"></div>
+            </div>
+          </div>
+        </section>
+        <aside class="side">
+          <section class="panel summary">
+            <div id="statePanel"></div>
+            <div id="outcome"></div>
+          </section>
+          <section class="panel players">
+            <div class="section-label">Personajes · inventario y estado</div>
+            <div id="playersPanel"></div>
+          </section>
+          <section class="panel story">
+            <div id="phase" class="phase"></div>
+            <h1 id="stepTitle"></h1>
+            <div id="narration" class="narration"></div>
+            <div id="focusCard" class="focus-card" hidden></div>
+            <div id="dialogue" class="dialogue"></div>
+            <div id="moves" class="moves"></div>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <script src="replay.js"></script>
+  </body>
 </html>
