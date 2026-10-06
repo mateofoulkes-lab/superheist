@@ -20,10 +20,11 @@ footer{border-top:1px solid #242943;padding:20px 0;color:#737c9f}
 <body>
 <header>
   <div class="eyebrow">SuperHeist / mesa de diseño</div>
-  <h1>Toolbox</h1>
-  <p class="sub">Herramientas para diseñar, probar y balancear el juego. Esta portada descubre automáticamente las carpetas publicadas en <code>/tools</code> del branch <b>main</b>.</p>
+  <h1>El próximo golpe.</h1>
+  <p class="sub">Jugá una partida de Superheist contra tres personajes automáticos, o explorá las herramientas para diseñar y probar el juego.</p>
 </header>
 <main>
+  <a class="card" href="tools/playable/" style="border-color:#c7f180;background:#20332b"><span class="tag" style="background:#c7f180;color:#20332b">NUEVO · JUGABLE</span><h2>Sentate a la mesa →</h2><p>Tu personaje, tus cartas y tres agendas propias. Jugá el atraco con miniaturas, patrullas y un banco que responde.</p></a>
   <section id="tools" class="grid"></section>
   <div id="status" class="status">Buscando herramientas en main…</div>
   <footer>SuperHeist prototype lab · mateofoulkes-lab/superheist</footer>
@@ -43,7 +44,7 @@ async function load(){
     const r=await fetch(`https://api.github.com/repos/${REPO}/contents/tools?ref=${BRANCH}`);
     if(!r.ok) throw new Error("GitHub API "+r.status);
     const remote=(await r.json()).filter(x=>x.type==="dir").map(x=>x.name);
-    const dirs=[...new Set([...remote,"bank-builder","game-replay","simulator"])].sort().map(name=>({name}));
+    const dirs=[...new Set([...remote,"bank-builder","game-replay","simulator","playable"])].sort().map(name=>({name}));
     const metas=await Promise.all(dirs.map(async d=>{
       try{
         const m=await fetch(`tools/${d.name}/tool.json`);

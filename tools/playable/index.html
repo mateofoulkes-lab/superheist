@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#101a1c" />
+    <title>SUPERHEIST — La mesa</title>
+    <link rel="stylesheet" href="table.css" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="../../"
+        ><span class="brand-mark">S/H</span
+        ><span>SUPERHEIST<small>LA MESA · PROTOTIPO JUGABLE</small></span></a
+      >
+      <div class="hud" id="hud"></div>
+      <nav>
+        <button id="help" class="quiet">Cómo jugar</button
+        ><button
+          id="sound"
+          class="quiet"
+          aria-pressed="false"
+          title="Activar sonido"
+        >
+          Sonido: no</button
+        ><button id="newGame" class="quiet">Nuevo atraco</button>
+      </nav>
+    </header>
+    <main class="table-layout">
+      <aside class="crew-panel">
+        <div class="eyebrow">
+          LA BANDA <span>1 HUMANO + 3 AUTOMÁTICOS</span>
+        </div>
+        <div id="crew"></div>
+        <div class="mission">
+          <span class="eyebrow">EL TRABAJO</span><b>6 de botín. Dos a bordo.</b>
+          <p>
+            Depositá el botín en el auto, subí y hacé que alguien lo ponga en
+            marcha.
+          </p>
+          <div id="clock"></div>
+        </div>
+        <button class="quiet replay-link" id="export">
+          Descargar partida para Replay ↗
+        </button>
+      </aside>
+      <section class="playfield" aria-label="Tablero del banco">
+        <div class="field-header">
+          <div>
+            <span class="eyebrow">BANCO MERIDIAN</span>
+            <h1 id="phaseTitle">La banda se está reuniendo.</h1>
+          </div>
+          <div class="view-controls">
+            <button id="toggleView" class="quiet" aria-pressed="false">
+              Vista cenital</button
+            ><button id="speed" class="quiet">Ritmo: normal</button>
+          </div>
+        </div>
+        <div class="board-viewport" id="boardViewport">
+          <div class="scene" id="scene">
+            <div class="table-board" id="board"></div>
+            <div class="pieces" id="pieces"></div>
+          </div>
+          <div class="board-watermark">
+            MERIDIAN<br /><small>PRIVATE BANKING</small>
+          </div>
+        </div>
+        <div class="board-legend">
+          <span><i class="legend-dot lime"></i> Tu miniatura</span
+          ><span>◆ Botín oculto</span><span>◉ Cámara</span
+          ><span>→ Próximo paso de patrulla</span>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </section>
+      <aside class="command-panel">
+        <div class="turn-banner" id="turnBanner">Preparación</div>
+        <section class="location-panel">
+          <span class="eyebrow">HABITACIÓN SELECCIONADA</span>
+          <h2 id="roomTitle">Exterior / auto</h2>
+          <p id="roomDetail"></p>
+          <div id="roomActions" class="actions"></div>
+        </section>
+        <section class="basic-panel">
+          <span class="eyebrow">TU ACCIÓN</span>
+          <div id="basicActions" class="basic-actions"></div>
+          <div id="targetHint" class="target-hint" hidden></div>
+        </section>
+        <section class="log-panel">
+          <div class="eyebrow">
+            LO QUE ACABA DE PASAR
+            <button id="history" class="text-button">Historial</button>
+          </div>
+          <div id="lastEvent" aria-live="polite"></div>
+          <div id="diceTray" class="dice-tray"></div>
+        </section>
+      </aside>
+      <section class="hand-panel">
+        <div class="hand-heading">
+          <span class="eyebrow">TUS CARTAS</span
+          ><span id="handHint">Sólo vos conocés tu objetivo y tu Equipo.</span>
+        </div>
+        <div class="hand-content">
+          <div id="identityCards" class="identity-cards"></div>
+          <div class="inventory-area">
+            <div class="inventory-label">
+              MANOS <span>El Equipo debe estar en mano para usarlo.</span>
+            </div>
+            <div id="hands" class="slot-row"></div>
+            <div class="inventory-label">
+              MOCHILA <span id="bagCapacity">2 espacios</span>
+            </div>
+            <div id="bag" class="slot-row"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <dialog id="welcome" class="welcome">
+      <form id="startForm">
+        <div class="eyebrow">UN ATRACO. CUATRO AGENDAS.</div>
+        <h2>El plan era<br /><em>perfecto.</em></h2>
+        <p>
+          Vos controlás una miniatura. Las otras tres personas tienen sus
+          propias cartas y toman sus propias decisiones. La seguridad no espera.
+        </p>
+        <div class="setup-inputs">
+          <label
+            >Nombre del golpe<input id="seed" maxlength="70" required /></label
+          ><label
+            >La banda<select id="profile">
+              <option value="conflict">Con intereses enfrentados</option>
+              <option value="cooperative">Cooperación y cautela</option>
+            </select></label
+          >
+        </div>
+        <button class="primary start-button" type="submit">
+          Repartir cartas y entrar →</button
+        ><button type="button" id="resume" class="quiet" hidden>
+          Continuar mi atraco
+        </button>
+        <p class="fineprint">
+          Primer escenario de prueba · 4 jugadores · guardado automático en este
+          navegador. Sin cuentas ni multijugador online.
+        </p>
+      </form>
+    </dialog>
+    <dialog id="detail" class="detail-dialog">
+      <button id="closeDetail" class="close" aria-label="Cerrar">×</button>
+      <div id="detailContent"></div>
+    </dialog>
+    <dialog id="ending" class="ending">
+      <div class="eyebrow">FIN DEL ATRACO</div>
+      <h2 id="endingTitle"></h2>
+      <div id="endingContent"></div>
+      <div class="ending-buttons">
+        <button id="again" class="primary">Otro golpe</button
+        ><button id="watchReplay" class="quiet">Ver el Replay</button
+        ><button id="backToTable" class="quiet">Mirar la mesa</button>
+      </div>
+    </dialog>
+    <script src="../simulator/engine.js"></script>
+    <script src="controller.js"></script>
+    <script src="table.js"></script>
+  </body>
+</html>

@@ -43,3 +43,7 @@ Usa Playwright y Chrome instalado (o la variable `CHROME_PATH`). Verifica distin
 ## Publicación
 
 GitHub Pages puede servir la raíz de `main`; no se necesita compilación ni servidor de producción. Cada herramienta tiene `index.html` y `tool.json`. La portada descubre herramientas remotas y conserva accesos locales conocidos.
+
+## Mesa jugable
+
+[Probar la mesa online](https://mateofoulkes-lab.github.io/superheist/tools/playable/) · [Detalles y controles](tools/playable/README.md). Una persona, tres personajes automáticos y un tablero con perspectiva, miniaturas y cartas. Guardado local y Replay de la partida.
