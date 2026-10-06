@@ -1,0 +1,6 @@
+{
+  "title": "Ejemplos de partida / Replay",
+  "status": "v0.1",
+  "description": "Reproduce partidas paso a paso sobre el mapa real: movimientos, jugadores, guardias, SWAT, cartas, botín, diálogos y objetos destacados.",
+  "order": 2
+}
